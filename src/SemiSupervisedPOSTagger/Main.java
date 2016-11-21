@@ -13,6 +13,7 @@ import SemiSupervisedPOSTagger.Training.Trainer;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 public class Main {
+    // Victor started.
     public static void main(String[] args) throws Exception {
         Options options = new Options(args);
 
@@ -22,7 +23,7 @@ public class Main {
             Trainer.train(options, 32,options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);
-            tagger.tag( options.inputPath, options.outputPath, options.delim,options.scoreFile);
+            tagger.tag(options.inputPath, options.outputPath, options.delim,options.scoreFile);
         }
         else if (options.tagPartial && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger=new Tagger(options.modelPath);

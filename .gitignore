@@ -28,3 +28,5 @@ out/production/SemiSupervisedPosTagger/jar/SemiSupervisedPosTagger.jar
 out/production/SemiSupervisedPosTagger/META-INF/MANIFEST.MF
 
 
+
+*.iml

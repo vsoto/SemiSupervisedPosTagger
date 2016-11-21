@@ -123,7 +123,6 @@ public class AveragedPerceptron {
         final HashMap<Integer, Float>[] weights;
         if (!isDecode) {
             weights = featureWeights[tagIndex];
-
         } else {
             weights = averagedWeights[tagIndex];
         }

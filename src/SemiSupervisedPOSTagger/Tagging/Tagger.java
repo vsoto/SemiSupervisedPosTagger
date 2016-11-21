@@ -1,5 +1,6 @@
 package SemiSupervisedPOSTagger.Tagging;
 
+import SemiSupervisedPOSTagger.IO.FileManager;
 import SemiSupervisedPOSTagger.Learning.AveragedPerceptron;
 import SemiSupervisedPOSTagger.Structures.IndexMaps;
 import SemiSupervisedPOSTagger.Structures.InfoStruct;
@@ -91,7 +92,8 @@ public class Tagger {
     }
 
     public void tag(final String inputPath, final String outputPath,final String delim, final String scoreFile)throws Exception{
-        BufferedReader reader=new BufferedReader(new FileReader(inputPath));
+        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps, delim);
+
         BufferedWriter writer=new BufferedWriter(new FileWriter(outputPath));
 
         boolean putScore=false;
@@ -102,36 +104,26 @@ public class Tagger {
         }
         
         int ln=0;
-        String line;
-        while((line=reader.readLine())!=null){
+        for (Sentence sentence: sentences){
             ln++;
             if(ln%1000==0)
                 System.out.print(ln+"...");
-            String[] flds=line.trim().replace("　","").split(" ");
-            ArrayList<String> words=new ArrayList<String>(flds.length);
-            for(int i=0;i<flds.length;i++){
-                if(flds[i].trim().length()==0)
-                    continue;
-                words.add(flds[i].trim());
-            }
-            Sentence sentence=new Sentence(words,maps);
-                      
-            Pair<int[],Float> ts=tagWithScore(sentence,false);
-            int[] t=ts.first;
+
+            Pair<int[],Float> ts = tagWithScore(sentence, false);
+            int[] t = ts.first;
             String[] tags = new String[t.length];
             for (int i = 0; i < tags.length; i++)
                 tags[i] = maps.reversedMap[t[i]];
             
-            StringBuilder output=new StringBuilder();
+            StringBuilder output = new StringBuilder();
             for(int i=0;i<tags.length;i++){
-                output.append(words.get(i)+delim+tags[i]+" ");
+                output.append(sentence.wordStrs[i] + delim + tags[i] + " ");
             }
             writer.write(output.toString().trim()+"\n");
-            
-            
+
             if(putScore) {
                 float normalizedScore=  ts.second/tags.length;
-                scoreWriter.write(normalizedScore+"\n");
+                scoreWriter.write(normalizedScore + "\n");
             }
         }
         System.out.print(ln+"\n");
