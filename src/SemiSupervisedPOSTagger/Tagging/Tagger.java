@@ -118,6 +118,7 @@ public class Tagger {
             StringBuilder output = new StringBuilder();
             for(int i=0;i<tags.length;i++){
                 output.append(sentence.wordStrs[i] + delim + tags[i] + " ");
+                System.out.print(sentence.wordStrs[i]);
             }
             writer.write(output.toString().trim()+"\n");
 
