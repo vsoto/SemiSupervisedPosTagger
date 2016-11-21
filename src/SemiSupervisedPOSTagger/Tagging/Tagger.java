@@ -104,6 +104,8 @@ public class Tagger {
         }
         
         int ln=0;
+        int corr = 0;
+        int total = 0;
         for (Sentence sentence: sentences){
             ln++;
             if(ln%1000==0)
@@ -118,7 +120,8 @@ public class Tagger {
             StringBuilder output = new StringBuilder();
             for(int i=0;i<tags.length;i++){
                 output.append(sentence.wordStrs[i] + delim + tags[i] + " ");
-                System.out.print(sentence.wordStrs[i]);
+                corr += tags[i] == maps.reversedMap[sentence.tags[i]] ? 1 : 0;
+                total++;
             }
             writer.write(output.toString().trim()+"\n");
 
@@ -128,6 +131,7 @@ public class Tagger {
             }
         }
         System.out.print(ln+"\n");
+        System.out.print("Tagging accuracy: " + (corr*1.0/total) + "\n");
         writer.flush();
         writer.close();
         if(putScore) {
