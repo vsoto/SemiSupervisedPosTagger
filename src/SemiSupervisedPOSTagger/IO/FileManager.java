@@ -94,12 +94,12 @@ public class FileManager {
         stringMap.put("<<STOP>>", 1);
 
         for (String lang_id : lang_ids) {
-            System.out.print(lang_id + " " + index);
+            System.out.print(lang_id + " " + index + "\n");
             stringMap.put(lang_id, index++);
         }
 
         for (String t : tags) {
-            System.out.print(t + " " + index);
+            System.out.print(t + " " + index + "\n");
             stringMap.put(t, index++);
         }
 
@@ -143,6 +143,7 @@ public class FileManager {
         }
 
         System.out.println(stringMap.size());
+        System.out.println(index);
         String[] reversedMap = new String[stringMap.size()];
         for (String k : stringMap.keySet()) {
             // System.out.print(k);
