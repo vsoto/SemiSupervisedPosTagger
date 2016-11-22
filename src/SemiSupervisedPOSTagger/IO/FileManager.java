@@ -32,16 +32,18 @@ public class FileManager {
         ArrayList<String> lang_tags = new ArrayList<String>();
 
         while ((line = reader.readLine()) != null) {
-            if (line.trim().length() > 0) {
-                sentences.add(new Sentence(words, pos_tags, lang_tags, maps, delim));
-                words.clear();
-                pos_tags.clear();
-                lang_tags.clear();
-            } else {
-                String[] tokens = line.trim().split("\t");
-                words.add(tokens[1]);
-                pos_tags.add(tokens[2]);
-                lang_tags.add(tokens[3]);
+            if (!line.startsWith("#")) {
+                if (line.trim().length() > 0) {
+                    sentences.add(new Sentence(words, pos_tags, lang_tags, maps, delim));
+                    words.clear();
+                    pos_tags.clear();
+                    lang_tags.clear();
+                } else {
+                    String[] tokens = line.trim().split("\t");
+                    words.add(tokens[1]);
+                    pos_tags.add(tokens[2]);
+                    lang_tags.add(tokens[3]);
+                }
             }
         }
         System.out.print("Done!\n");
@@ -65,22 +67,24 @@ public class FileManager {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            String[] tokens = line.trim().split("\t");
-            if (tokens.length > 0) {
-                String word = tokens[1];
-                String lang_id = tokens[2];
-                String pos_tag = tokens[3];
+            if (!line.startsWith("#")) {
+                String[] tokens = line.trim().split("\t");
+                if (tokens.length == 4) {
+                    String word = tokens[1];
+                    String lang_id = tokens[2];
+                    String pos_tag = tokens[3];
 
-                for (int p = 0; p < Math.min(4, word.length()); p++) {
-                    String prefix = word.substring(0, p + 1);
-                    String suffix = word.substring(word.length() - p - 1);
-                    words.add(prefix);
-                    words.add(suffix);
+                    for (int p = 0; p < Math.min(4, word.length()); p++) {
+                        String prefix = word.substring(0, p + 1);
+                        String suffix = word.substring(word.length() - p - 1);
+                        words.add(prefix);
+                        words.add(suffix);
+                    }
+
+                    tags.add(pos_tag);
+                    words.add(word);
+                    lang_ids.add(lang_id);
                 }
-
-                tags.add(pos_tag);
-                words.add(word);
-                lang_ids.add(lang_id);
             }
         }
 
