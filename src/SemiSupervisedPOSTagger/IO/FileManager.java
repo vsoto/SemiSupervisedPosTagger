@@ -40,6 +40,7 @@ public class FileManager {
                     lang_tags.clear();
                 } else {
                     String[] tokens = line.trim().split("\t");
+                    System.out.print(line + "\n");
                     words.add(tokens[1]);
                     pos_tags.add(tokens[2]);
                     lang_tags.add(tokens[3]);
