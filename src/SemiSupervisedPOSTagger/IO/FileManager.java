@@ -33,7 +33,7 @@ public class FileManager {
 
         while ((line = reader.readLine()) != null) {
             if (!line.startsWith("#")) {
-                if (line.trim().length() > 0) {
+                if (line.trim().length() == 0) {
                     sentences.add(new Sentence(words, pos_tags, lang_tags, maps, delim));
                     words.clear();
                     pos_tags.clear();
