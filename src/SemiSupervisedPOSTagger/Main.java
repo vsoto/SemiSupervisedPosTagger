@@ -20,16 +20,14 @@ public class Main {
         System.out.println(options);
 
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, 64,options.tagDictionaryPath);
+            Trainer.train(options, 64, options.tagDictionaryPath);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
-            Tagger tagger=new Tagger(options.modelPath);
-            tagger.tag(options.inputPath, options.outputPath, options.delim,options.scoreFile);
-        }
-        else if (options.tagPartial && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
-            Tagger tagger=new Tagger(options.modelPath);
-            tagger.partialTag( options.inputPath, options.outputPath, options.delim,options.scoreFile);
-        }
-        else {
+            Tagger tagger = new Tagger(options.modelPath);
+            tagger.tag(options.inputPath, options.outputPath, options.delim, options.scoreFile);
+        } else if (options.tagPartial && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
+            Tagger tagger = new Tagger(options.modelPath);
+            tagger.partialTag(options.inputPath, options.outputPath, options.delim, options.scoreFile);
+        } else {
             System.out.println(options.showHelp());
         }
     }

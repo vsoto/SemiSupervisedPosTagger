@@ -62,15 +62,6 @@ public class Tagger {
 
     }
 
-    public String[] tag(final String line, final String delim, final boolean usePartialInfo) {
-        Sentence sentence = new Sentence(line, maps, delim);
-        int[] tags = tag(sentence, usePartialInfo);
-        String[] output = new String[tags.length];
-        for (int i = 0; i < tags.length; i++)
-            output[i] = maps.reversedMap[tags[i]];
-        return output;
-    }
-
     public static int[] tag(final Sentence sentence, final AveragedPerceptron classifier, final boolean isDecode, final boolean useBeamSearch, final int beamSize, final boolean usePartialInfo) {
         return useBeamSearch ?
                 BeamTagger.thirdOrder(sentence, classifier, isDecode, beamSize, usePartialInfo, null) : Viterbi.thirdOrder(sentence, classifier, isDecode, null);
@@ -154,7 +145,7 @@ public class Tagger {
     }
 
     public void partialTag(final String inputPath, final String outputPath, final String delim, String scoreFile) throws Exception {
-        BufferedReader reader = new BufferedReader(new FileReader(inputPath));
+        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps, delim);
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath));
 
         boolean putScore = false;
@@ -165,28 +156,20 @@ public class Tagger {
         }
 
         int ln = 0;
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.length() == 0) {
-                writer.write("\n");
-                continue;
-            }
-            ln++;
-            if (ln % 1000 == 0)
-                System.out.print(ln + "...");
-            Sentence sentence = new Sentence(line, maps, delim);
-
+        for (Sentence sentence: sentences) {
             Pair<int[], Float> ts = tagWithScore(sentence, true);
             int[] t = ts.first;
 
             String[] tags = new String[t.length];
-            for (int i = 0; i < tags.length; i++)
+            String[] lang_ids = new String[t.length];
+            for (int i = 0; i < tags.length; i++) {
                 tags[i] = maps.reversedMap[t[i]];
+                lang_ids[i] = maps.reversedMap[sentence.lang_ids[i]];
+             }
 
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < tags.length; i++) {
-                output.append(sentence.wordStrs[i] + delim + tags[i] + " ");
+                output.append(i + "\t" + sentence.wordStrs[i] + "\t" + lang_ids[i] + "\t" + tags[i] + "\n");
             }
             writer.write(output.toString().trim() + "\n");
 
