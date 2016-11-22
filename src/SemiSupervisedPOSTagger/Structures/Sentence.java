@@ -182,7 +182,10 @@ public class Sentence {
             containsNumber[i] = hasNumber;
             containsUpperCaseLetter[i] = hasUpperCase;
 
-            this.langids[i] = maps.stringMap.get(langids.get(i));
+            if (maps.stringMap.containsKey(langids.get(i)))
+                this.langids[i] = maps.stringMap.get(langids.get(i));
+            else
+                this.langids[i] = SpecialWords.unknown.value;
 
 
             if (tags.get(i).equals("***")) //for unknown tag
