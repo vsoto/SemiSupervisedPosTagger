@@ -19,113 +19,132 @@ import java.util.HashSet;
  */
 
 public class FileManager {
-    public static ArrayList<Sentence> readSentences(String filePath, IndexMaps maps,String delim) throws Exception{
-        System.out.print("reading sentences...");
-        BufferedReader reader=new BufferedReader(new FileReader(filePath));
+
+
+    public static ArrayList<Sentence> readSentences(String filePath, IndexMaps maps, String delim) throws Exception {
+        System.out.print("Reading CONLL sentences...");
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String line;
-        ArrayList<Sentence> sentences=new ArrayList<Sentence>();
-        while((line=reader.readLine())!=null){
-            if(line.trim().length()>0)
-                sentences.add(new Sentence(line,maps,delim));
+        ArrayList<Sentence> sentences = new ArrayList<Sentence>();
+
+        ArrayList<String> words = new ArrayList<String>();
+        ArrayList<String> pos_tags = new ArrayList<String>();
+        ArrayList<String> lang_tags = new ArrayList<String>();
+
+        while ((line = reader.readLine()) != null) {
+            if (line.trim().length() > 0) {
+                sentences.add(new Sentence(words, pos_tags, lang_tags, maps, delim));
+                words.clear();
+                pos_tags.clear();
+                lang_tags.clear();
+            } else {
+                String[] tokens = line.trim().split("\t");
+                words.add(tokens[1]);
+                pos_tags.add(tokens[2]);
+                lang_tags.add(tokens[3]);
+            }
         }
-        System.out.print("done!\n");
+        System.out.print("Done!\n");
         return sentences;
     }
 
-    public static IndexMaps createIndexMaps(String filePath, String delim,String clusterFile,String tagDictionaryPath, int brownSize) throws Exception{
+    public static IndexMaps createIndexMaps(String filePath, String delim, String clusterFile, String tagDictionaryPath, int brownSize) throws Exception {
         System.out.print("creating index maps...");
-        HashMap<String, Integer> stringMap=new HashMap<String, Integer>();
-        HashMap<String,Integer> clusterMap=new HashMap<String, Integer>();
-        HashMap<Integer,Integer>[] clusterNMap=new HashMap[brownSize];
-        for(int i=0;i<brownSize;i++)
-            clusterNMap[i]=new HashMap<Integer, Integer>();
+        HashMap<String, Integer> stringMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> clusterMap = new HashMap<String, Integer>();
+        HashMap<Integer, Integer>[] clusterNMap = new HashMap[brownSize];
+        for (int i = 0; i < brownSize; i++) {
+            clusterNMap[i] = new HashMap<Integer, Integer>();
+        }
 
-        BufferedReader reader=new BufferedReader(new FileReader(filePath));
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
 
         HashSet<String> tags = new HashSet<String>();
-        HashSet<String> words=new HashSet<String>();
+        HashSet<String> words = new HashSet<String>();
+        HashSet<String> lang_ids = new HashSet<String>();
 
         String line;
-        while((line=reader.readLine())!=null){
-            String[] split=line.trim().split(" ");
-            for(int i=0;i<split.length;i++){
-                if(split[i].contains(delim)){
-                    int delimIndex=split[i].lastIndexOf(delim);
-                    String word=split[i].substring(0,delimIndex);
+        while ((line = reader.readLine()) != null) {
+            String[] tokens = line.trim().split("\t");
+            String word = tokens[1];
+            String lang_id = tokens[2];
+            String pos_tag = tokens[3];
 
-                    for(int p=0;p<Math.min(4,word.length());p++){
-                        String prefix=word.substring(0,p+1);
-                        String suffix=word.substring(word.length()-p-1);
-                        words.add(prefix);
-                        words.add(suffix);
-                    }
-
-                    String tag=split[i].substring(delimIndex+1);
-                    tags.add(tag);
-                    words.add(word);
-                }
+            for (int p = 0; p < Math.min(4, word.length()); p++) {
+                String prefix = word.substring(0, p + 1);
+                String suffix = word.substring(word.length() - p - 1);
+                words.add(prefix);
+                words.add(suffix);
             }
+
+            tags.add(pos_tag);
+            words.add(word);
+            lang_ids.add(lang_id);
         }
 
         // 0 and 1 are reserved for stop and start
-        int index=2;
-        stringMap.put("<<START>>",0);
+        int index = 2;
+        stringMap.put("<<START>>", 0);
         stringMap.put("<<STOP>>", 1);
 
-        for(String t:tags){
-            stringMap.put(t,index++);
+        for (String lang_id : lang_ids) {
+            stringMap.put(lang_id, index++);
         }
 
-        if(clusterFile.length()>0){
+        for (String t : tags) {
+            stringMap.put(t, index++);
+        }
+
+        if (clusterFile.length() > 0) {
             reader = new BufferedReader(new FileReader(clusterFile));
             while ((line = reader.readLine()) != null) {
                 String[] spl = line.trim().split("\t");
                 if (spl.length > 2) {
                     String cluster = spl[0];
-                    String word=spl[1];
-                    int clusterNum=index;
+                    String word = spl[1];
+                    int clusterNum = index;
 
                     if (!stringMap.containsKey(cluster)) {
-                        clusterMap.put(word,index);
+                        clusterMap.put(word, index);
                         stringMap.put(cluster, index++);
-                    }else{
-                        clusterNum= stringMap.get(cluster);
-                        clusterMap.put(word,clusterNum);
+                    } else {
+                        clusterNum = stringMap.get(cluster);
+                        clusterMap.put(word, clusterNum);
                     }
 
-                    for(int i=0;i<brownSize;i++) {
+                    for (int i = 0; i < brownSize; i++) {
                         int prefId = index;
-                        String prefix=cluster.substring(0,Math.min(i+1,cluster.length()));
+                        String prefix = cluster.substring(0, Math.min(i + 1, cluster.length()));
                         if (!stringMap.containsKey(prefix)) {
                             stringMap.put(prefix, index++);
                         } else {
                             prefId = stringMap.get(prefix);
                         }
-                        clusterNMap[i].put(clusterNum,prefId);
+                        clusterNMap[i].put(clusterNum, prefId);
                     }
 
                 }
             }
         }
-        
-        for(String w:words){
-            if(!stringMap.containsKey(w))
-                stringMap.put(w,index++);
-            if(!stringMap.containsKey(w.toLowerCase()))
-               stringMap.put(w.toLowerCase(),index++);
+
+        for (String w : words) {
+            if (!stringMap.containsKey(w))
+                stringMap.put(w, index++);
+            if (!stringMap.containsKey(w.toLowerCase()))
+                stringMap.put(w.toLowerCase(), index++);
         }
 
         System.out.println(stringMap.size());
-        String[] reversedMap=new String[stringMap.size()];
-        for(String k:stringMap.keySet()){
-            reversedMap[stringMap.get(k)]=k;
+        String[] reversedMap = new String[stringMap.size()];
+        for (String k : stringMap.keySet()) {
+            reversedMap[stringMap.get(k)] = k;
         }
 
-        int tagSize=tags.size()+2;
+        int tagSize = tags.size() + 2;
         System.out.print("done!\n");
 
-        HashMap<Integer,HashSet<Integer>> tagDictionary=new HashMap<Integer, HashSet<Integer>>();
-        if(tagDictionaryPath!=null && !tagDictionaryPath.equals("")) {
+        HashMap<Integer, HashSet<Integer>> tagDictionary = new HashMap<Integer, HashSet<Integer>>();
+        if (tagDictionaryPath != null && !tagDictionaryPath.equals("")) {
             BufferedReader tagDictionaryReader = new BufferedReader(new FileReader(tagDictionaryPath));
             while ((line = tagDictionaryReader.readLine()) != null) {
                 String[] spl = line.split("\t");
@@ -147,7 +166,7 @@ public class FileManager {
                 }
             }
         }
-        
-        return  new IndexMaps(tagSize,stringMap,reversedMap,clusterNMap,clusterMap,tagDictionary);
+
+        return new IndexMaps(tagSize, stringMap, reversedMap, clusterNMap, clusterMap, tagDictionary);
     }
 }

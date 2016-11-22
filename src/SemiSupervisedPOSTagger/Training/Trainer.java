@@ -24,7 +24,7 @@ import java.util.zip.GZIPOutputStream;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 public class Trainer {
-    public static void train(final Options options, final int featSize,String tagDictionaryPath) throws Exception {
+    public static void train(final Options options, final int featSize, String tagDictionaryPath) throws Exception {
         IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
         int unknownIndex = -1;
         // if(maps.stringMap.containsKey("***"))
