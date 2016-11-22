@@ -94,14 +94,15 @@ public class FileManager {
         stringMap.put("<<STOP>>", 1);
 
         for (String lang_id : lang_ids) {
-            System.out.print(lang_id + " " + index + "\n");
             stringMap.put(lang_id, index++);
         }
 
         for (String t : tags) {
-            System.out.print(t + " " + index + "\n");
             stringMap.put(t, index++);
         }
+
+        System.out.println(stringMap.size());
+        System.out.println(index);
 
         if (clusterFile.length() > 0) {
             reader = new BufferedReader(new FileReader(clusterFile));
