@@ -29,7 +29,8 @@ public class Main {
             Tagger tagger=new Tagger(options.modelPath);
             tagger.partialTag( options.inputPath, options.outputPath, options.delim,options.scoreFile);
         }
-        else
+        else {
             System.out.println(options.showHelp());
+        }
     }
 }
