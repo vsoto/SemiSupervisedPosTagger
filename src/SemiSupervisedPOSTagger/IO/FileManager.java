@@ -40,10 +40,9 @@ public class FileManager {
                     lang_tags.clear();
                 } else {
                     String[] tokens = line.trim().split("\t");
-                    System.out.print(line + "\n");
                     words.add(tokens[1]);
-                    pos_tags.add(tokens[2]);
-                    lang_tags.add(tokens[3]);
+                    lang_tags.add(tokens[2]);
+                    pos_tags.add(tokens[3]);
                 }
             }
         }
@@ -52,7 +51,7 @@ public class FileManager {
     }
 
     public static IndexMaps createIndexMaps(String filePath, String delim, String clusterFile, String tagDictionaryPath, int brownSize) throws Exception {
-        System.out.print("creating index maps...");
+        System.out.print("Creating index maps...");
         HashMap<String, Integer> stringMap = new HashMap<String, Integer>();
         HashMap<String, Integer> clusterMap = new HashMap<String, Integer>();
         HashMap<Integer, Integer>[] clusterNMap = new HashMap[brownSize];
