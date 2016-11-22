@@ -143,6 +143,8 @@ public class FileManager {
         System.out.println(stringMap.size());
         String[] reversedMap = new String[stringMap.size()];
         for (String k : stringMap.keySet()) {
+            System.out.print(k);
+            System.out.print(stringMap.get(k));
             reversedMap[stringMap.get(k)] = k;
         }
 
