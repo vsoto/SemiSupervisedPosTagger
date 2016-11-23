@@ -82,8 +82,8 @@ public class Tagger {
                 BeamTagger.thirdOrderWithScore(sentence, perceptron, true, beamSize, usePartialInfo, this) : Viterbi.thirdOrderWithScore(sentence, perceptron, true, this);
     }
 
-    public void tag(final String inputPath, final String outputPath, final String delim, final String scoreFile) throws Exception {
-        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps, delim);
+    public void tag(final String inputPath, final String outputPath, final String scoreFile) throws Exception {
+        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps);
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath));
 
@@ -110,8 +110,8 @@ public class Tagger {
 
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < tags.length; i++) {
-                output.append(sentence.wordStrs[i] + delim + tags[i] + " ");
-                corr += tags[i] == maps.reversedMap[sentence.tags[i]] ? 1 : 0;
+                output.append(i + "\t" + sentence.wordStrs[i] + "\t" + maps.reversedMap[sentence.lang_ids[i]] + "\t" + tags[i] + "\n");
+                corr += (tags[i] == maps.reversedMap[sentence.tags[i]]) ? 1 : 0;
                 total++;
             }
             writer.write(output.toString().trim() + "\n");
@@ -144,8 +144,8 @@ public class Tagger {
         return replacements;
     }
 
-    public void partialTag(final String inputPath, final String outputPath, final String delim, String scoreFile) throws Exception {
-        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps, delim);
+    public void partialTag(final String inputPath, final String outputPath, String scoreFile) throws Exception {
+        ArrayList<Sentence> sentences = FileManager.readSentences(inputPath, maps);
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath));
 
         boolean putScore = false;

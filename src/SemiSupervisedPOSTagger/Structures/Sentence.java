@@ -30,12 +30,12 @@ public class Sentence {
     private final static int BIT_SHIFT = 5;
 
 
-    public Sentence(final ArrayList<String> words, final ArrayList<String> tags, final ArrayList<String> langids, final IndexMaps maps, final String delim) {
+    public Sentence(final ArrayList<String> words, final ArrayList<String> tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
         this.words = new int[words.size()];
         this.lowerWords = new int[words.size()];
         this.wordStrs = new String[words.size()];
         this.tags = new int[tags.size()];
-        this.lang_ids = new int[langids.size()];
+        this.lang_ids = new int[lang_ids.size()];
 
         prefixes = new int[words.size()][4];
         suffixes = new int[words.size()][4];
@@ -43,6 +43,11 @@ public class Sentence {
         containsNumber = new boolean[words.size()];
         containsHyphen = new boolean[words.size()];
         containsUpperCaseLetter = new boolean[words.size()];
+
+        if (words.size() != tags.size() || words.size() != lang_ids.size()) {
+            System.out.println("What?!! ERROR");
+        }
+
 
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
@@ -99,8 +104,8 @@ public class Sentence {
             containsNumber[i] = hasNumber;
             containsUpperCaseLetter[i] = hasUpperCase;
 
-            if (maps.stringMap.containsKey(langids.get(i)))
-                this.lang_ids[i] = maps.stringMap.get(langids.get(i));
+            if (maps.stringMap.containsKey(lang_ids.get(i)))
+                this.lang_ids[i] = maps.stringMap.get(lang_ids.get(i));
             else
                 this.lang_ids[i] = SpecialWords.unknown.value;
 

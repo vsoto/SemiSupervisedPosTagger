@@ -25,17 +25,17 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Trainer {
     public static void train(final Options options, final int featSize, String tagDictionaryPath) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.delim, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
         int unknownIndex = -1;
         // if(maps.stringMap.containsKey("***"))
         //   unknownIndex=maps.stringMap.get("***");
 
 
         // reading train and dev sentences to a vector
-        ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps, options.delim);
+        ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps);
         ArrayList<Sentence> dev_sentences = new ArrayList<Sentence>();
         if (options.devPath != "")
-            dev_sentences = FileManager.readSentences(options.devPath, maps, options.delim);
+            dev_sentences = FileManager.readSentences(options.devPath, maps);
 
         AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize, maps.getTagDictionary());
         double bestDevAcc = 0;

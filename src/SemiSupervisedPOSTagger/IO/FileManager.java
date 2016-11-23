@@ -21,7 +21,7 @@ import java.util.HashSet;
 public class FileManager {
 
 
-    public static ArrayList<Sentence> readSentences(String filePath, IndexMaps maps, String delim) throws Exception {
+    public static ArrayList<Sentence> readSentences(String filePath, IndexMaps maps) throws Exception {
         System.out.print("Reading CONLL sentences...");
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String line;
@@ -34,7 +34,7 @@ public class FileManager {
         while ((line = reader.readLine()) != null) {
             if (!line.startsWith("#")) {
                 if (line.trim().length() == 0) {
-                    sentences.add(new Sentence(words, pos_tags, lang_tags, maps, delim));
+                    sentences.add(new Sentence(words, pos_tags, lang_tags, maps));
                     words.clear();
                     pos_tags.clear();
                     lang_tags.clear();
@@ -50,7 +50,7 @@ public class FileManager {
         return sentences;
     }
 
-    public static IndexMaps createIndexMaps(String filePath, String delim, String clusterFile, String tagDictionaryPath, int brownSize) throws Exception {
+    public static IndexMaps createIndexMaps(String filePath, String clusterFile, String tagDictionaryPath, int brownSize) throws Exception {
         System.out.print("Creating index maps...");
         HashMap<String, Integer> stringMap = new HashMap<String, Integer>();
         HashMap<String, Integer> clusterMap = new HashMap<String, Integer>();
