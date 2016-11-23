@@ -71,7 +71,7 @@ public class Trainer {
             }
         }
 
-        if (dev_sentences.size()>0) {
+        if (dev_sentences.size() > 0) {
             InfoStruct info = new InfoStruct(classifier, options.useBeamSearch, options.beamWidth, maps.getTagDictionary(), classifier.getAvgPenalizerWeight(), true);
 
             System.out.print("saving the model...");
@@ -80,14 +80,14 @@ public class Trainer {
         }
     }
 
-    private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex, final   double C) {
+    private static int trainIter(final Sentence sen, AveragedPerceptron classifier, final boolean useBeamSearch, final int beamSize, final int featSize, final UpdateMode updateMode, final int unknownIndex, final double C) {
         int corr = 0;
         if (useBeamSearch || updateMode.value == updateMode.standard.value) {
-          //  TaggingState predictedState = BeamTagger.thirdOrder(sen, classifier, beamSize, updateMode,unknownIndex);
-           //todo
-            ArrayList<TaggingState> bestStates= BeamTagger.thirdOrderNBest(sen, classifier, beamSize, updateMode, unknownIndex,2);
+            //  TaggingState predictedState = BeamTagger.thirdOrder(sen, classifier, beamSize, updateMode,unknownIndex);
+            //todo
+            ArrayList<TaggingState> bestStates = BeamTagger.thirdOrderNBest(sen, classifier, beamSize, updateMode, unknownIndex, 2);
 
-            TaggingState predictedState=bestStates.get(0);
+            TaggingState predictedState = bestStates.get(0);
             int[] predictedTags = predictedState.tags;
             int currentPosition = predictedState.currentPosition;
             assert (predictedTags.length == sen.tags.length);
@@ -96,7 +96,7 @@ public class Trainer {
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
                 int gold = sen.tags[t];
-                if (gold!=unknownIndex && predicted != gold ) {
+                if (gold != unknownIndex && predicted != gold) {
                     same = false;
                 } else
                     corr++;
@@ -105,7 +105,7 @@ public class Trainer {
             // updating weights
             if (!same) {
                 updateWeights(sen, classifier, predictedTags, featSize, currentPosition, unknownIndex);
-            }  else if(predictedState.score-bestStates.get(1).score<=C){
+            } else if (predictedState.score - bestStates.get(1).score <= C) {
                 updateWeights(sen, classifier, bestStates.get(1).tags, featSize, currentPosition, unknownIndex);
             }
         } else {
@@ -149,35 +149,35 @@ public class Trainer {
             }
 
             if ((gold != predicted || predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag)
-                    && gold!=unknownIndex && gold_prev2_tag!=unknownIndex && goldPrevTag!=unknownIndex) {
+                    && gold != unknownIndex && gold_prev2_tag != unknownIndex && goldPrevTag != unknownIndex) {
                 int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
                 int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
-                for (int f = 0; f < featSize-1; f++) {
+                for (int f = 0; f < featSize - 1; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 
-                    if(pfeat!=gfeat || predicted!=gold) {
+                    if (pfeat != gfeat || predicted != gold) {
                         if (pfeat != -1)
                             classifier.changeWeight(predicted, f, pfeat, -1);
 
                         if (gfeat != -1)
-                                classifier.changeWeight(gold, f, gfeat, +1);
+                            classifier.changeWeight(gold, f, gfeat, +1);
                     }
                 }
-                
-               if(gold != predicted ){
-                //   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
-                   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
-                   if(gCond!=-1)
-                       classifier.changeWeight(gold, classifier.featureSize()-1, gCond, 1);
-                   
-                  // int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
-                   int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
-                   if(pCond!=-1)
-                       classifier.changeWeight(predicted, classifier.featureSize()-1, pCond, -1);
-               }
-                
+
+                if (gold != predicted) {
+                    //   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
+                    int gCond = classifier.dictCondition(sen.lowerWords[t], gold);
+                    if (gCond != -1)
+                        classifier.changeWeight(gold, classifier.featureSize() - 1, gCond, 1);
+
+                    // int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
+                    int pCond = classifier.dictCondition(sen.lowerWords[t], predicted);
+                    if (pCond != -1)
+                        classifier.changeWeight(predicted, classifier.featureSize() - 1, pCond, -1);
+                }
+
             }
         }
 
@@ -198,15 +198,15 @@ public class Trainer {
                 }
             }
 
-            if ((predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag ) && gold_prev2_tag!=unknownIndex && goldPrevTag!=unknownIndex) {
+            if ((predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag) && gold_prev2_tag != unknownIndex && goldPrevTag != unknownIndex) {
                 int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
                 int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
 
-                for (int f = featSize - 3; f < featSize-1; f++) {
+                for (int f = featSize - 3; f < featSize - 1; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
 
-                    if(pfeat!=gfeat) {
+                    if (pfeat != gfeat) {
                         if (pfeat != -1)
                             classifier.changeWeight(1, f, pfeat, -1);
 
@@ -218,8 +218,8 @@ public class Trainer {
         }
     }
 
-    private static double devIter(ArrayList<Sentence> dev_sentences, String modelPath) throws Exception{
-        Tagger tagger=new Tagger(modelPath);
+    private static double devIter(ArrayList<Sentence> dev_sentences, String modelPath) throws Exception {
+        Tagger tagger = new Tagger(modelPath);
         System.out.print("\ndecoding...");
         int corr = 0;
         int all = 0;
@@ -231,7 +231,7 @@ public class Trainer {
             Sentence sen = dev_sentences.get(s);
             if ((s + 1) % 1000 == 0)
                 System.out.print((s + 1) + " ");
-            int[] predictedTags = tagger.tag(sen,  false);
+            int[] predictedTags = tagger.tag(sen, false);
 
             assert (predictedTags.length == sen.tags.length);
 
@@ -263,9 +263,9 @@ public class Trainer {
     }
 
 
-    private static void devIter(ArrayList<Sentence> dev_sentences, String modelPath, AveragedPerceptron perceptron) throws Exception{
-        Tagger tagger=new Tagger(modelPath);
-        tagger.perceptron=perceptron;
+    private static void devIter(ArrayList<Sentence> dev_sentences, String modelPath, AveragedPerceptron perceptron) throws Exception {
+        Tagger tagger = new Tagger(modelPath);
+        tagger.perceptron = perceptron;
         System.out.print("\ndecoding...");
         int corr = 0;
         int all = 0;
@@ -277,7 +277,7 @@ public class Trainer {
             Sentence sen = dev_sentences.get(s);
             if ((s + 1) % 1000 == 0)
                 System.out.print((s + 1) + " ");
-            int[] predictedTags = tagger.tag(sen,  false,false);
+            int[] predictedTags = tagger.tag(sen, false, false);
 
             assert (predictedTags.length == sen.tags.length);
 
@@ -307,7 +307,7 @@ public class Trainer {
         System.out.print("dev exact match is " + format.format(exact_match) + "\n");
     }
 
-    
+
     public static void saveModel(IndexMaps maps, InfoStruct info, String modelPath) throws Exception {
         FileOutputStream fos = new FileOutputStream(modelPath);
         GZIPOutputStream gz = new GZIPOutputStream(fos);
