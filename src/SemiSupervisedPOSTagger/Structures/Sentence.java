@@ -213,11 +213,12 @@ public class Sentence {
         int bigram = (prev2Tag << 10) + prevTag;
         features[index++] = bigram;
 
-        System.out.println(position);
-        System.out.println(this.lang_ids.length);
+        System.out.println("Position: " +  position);
+        System.out.println("Length: " + this.lang_ids.length);
         for (int i = 0 ; i < this.lang_ids.length; ++i) {
-            System.out.println(this.lang_ids[i]);
+            System.out.print(" " + this.lang_ids[i]);
         }
+        System.out.println(" ");
         features[index++] = prevTag << BIT_SHIFT | this.lang_ids[position];
         features[index++] = bigram << BIT_SHIFT | this.lang_ids[position];
 
