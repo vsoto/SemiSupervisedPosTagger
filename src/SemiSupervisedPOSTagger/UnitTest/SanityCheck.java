@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class SanityCheck {
     public static void main(String[] args) throws Exception{
-        IndexMaps maps=FileManager.createIndexMaps("/Users/msr/Projects/SemiSupervisedPosTagger/SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/train.tag", "/Users/msr/Desktop/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt","",Sentence.brownSize);
+        IndexMaps maps=FileManager.createIndexMaps("/Users/msr/Projects/SemiSupervisedPosTagger/SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/train.tag", "/Users/msr/Desktop/brown-rcv1.clean.tokenized-CoNLL03.txt-c1000-freq1.txt","",Sentence.BROWN_SIZE);
 
       ArrayList<Sentence> sentences= FileManager.readSentences("/Users/msr/Projects/SemiSupervisedPosTagger/SemiSupervisedPosTagger/SemiSupervisedPosTagger/sample_file/train.tag", maps);
     }

@@ -25,25 +25,25 @@ public class AveragedPerceptron {
      * http://www.umiacs.umd.edu/~hal/docs/daume06thesis.pdf
      */
 
-    
+
     //todo make semi-sparse vectors
-    
+
     /**
      * For the weights for all features
      */
-    public  HashMap<Integer, Float>[][] featureWeights;
+    public HashMap<Integer, Float>[][] featureWeights;
     public int iteration;
     /**
      * This is the main part of the extension to the original perceptron algorithm which the averaging over all the history
      */
     public HashMap<Integer, Float>[][] averagedWeights;
-    
-    public HashMap<Integer,Float> penalizerWeight;
-    public HashMap<Integer,Float> avgPenalizerWeight;
-    
-    public HashMap<Integer,HashSet<Integer>> tagDictionary;
-    
-    public AveragedPerceptron(final int tagSize, final int featSize, HashMap<Integer,HashSet<Integer>> tagDictionary) {
+
+    public HashMap<Integer, Float> penalizerWeight;
+    public HashMap<Integer, Float> avgPenalizerWeight;
+
+    public HashMap<Integer, HashSet<Integer>> tagDictionary;
+
+    public AveragedPerceptron(final int tagSize, final int featSize, HashMap<Integer, HashSet<Integer>> tagDictionary) {
         featureWeights = new HashMap[tagSize][featSize];
         for (int i = 0; i < featureWeights.length; i++)
             for (int j = 0; j < featureWeights[i].length; j++)
@@ -53,13 +53,13 @@ public class AveragedPerceptron {
         for (int i = 0; i < averagedWeights.length; i++)
             for (int j = 0; j < averagedWeights[i].length; j++)
                 averagedWeights[i][j] = new HashMap<Integer, Float>();
-        this.tagDictionary=tagDictionary;
-        
-        penalizerWeight=new HashMap<Integer, Float>();
-        avgPenalizerWeight=new HashMap<Integer, Float>();
+        this.tagDictionary = tagDictionary;
+
+        penalizerWeight = new HashMap<Integer, Float>();
+        avgPenalizerWeight = new HashMap<Integer, Float>();
     }
 
-    private AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights,HashMap<Integer,HashSet<Integer>> tagDictionary,HashMap<Integer,Float> avgPenalizerWeight) {
+    private AveragedPerceptron(int tagSize, int featSize, HashMap<Integer, Float>[][] averagedWeights, HashMap<Integer, HashSet<Integer>> tagDictionary, HashMap<Integer, Float> avgPenalizerWeight) {
         featureWeights = new HashMap[tagSize][featSize];
         for (int i = 0; i < featureWeights.length; i++)
             for (int j = 0; j < featureWeights[i].length; j++)
@@ -67,41 +67,41 @@ public class AveragedPerceptron {
 
         iteration = 1;
         this.averagedWeights = averagedWeights;
-        this.tagDictionary=tagDictionary;
-        this.avgPenalizerWeight=avgPenalizerWeight;
+        this.tagDictionary = tagDictionary;
+        this.avgPenalizerWeight = avgPenalizerWeight;
     }
 
     public AveragedPerceptron(InfoStruct info) {
-         this(info.tagSize,info.featSize,info.averagedWeights,info.tagDictionary,info.penalizerWeight);
+        this(info.tagSize, info.featSize, info.averagedWeights, info.tagDictionary, info.penalizerWeight);
     }
 
-    public float changeWeight(int tagIndex,int featIndex, int featureName, float change) {
+    public float changeWeight(int tagIndex, int featIndex, int featureName, float change) {
         if (featureName == -1)
             return 0;
-       if(featIndex==featureSize()-1){
-            if(!penalizerWeight.containsKey(featureName))
-                penalizerWeight.put(featureName,0f);
-           penalizerWeight.put(featureName,penalizerWeight.get(featureName)+change);
-           
-           if(!avgPenalizerWeight.containsKey(featureName))
-               avgPenalizerWeight.put(featureName,0f);
-           avgPenalizerWeight.put(featureName,avgPenalizerWeight.get(featureName)+change);
-       }//   else {
-           // System.out.println(tagIndex+" "+featIndex+" "+featureName+" -> "+change);
-           HashMap<Integer, Float> map = featureWeights[tagIndex][featIndex];
-           Float value = map.get(featureName);
-           if (value != null)
-               map.put(featureName, change + value);
-           else
-               map.put(featureName, change);
+        if (featIndex == featureSize() - 1) {
+            if (!penalizerWeight.containsKey(featureName))
+                penalizerWeight.put(featureName, 0f);
+            penalizerWeight.put(featureName, penalizerWeight.get(featureName) + change);
 
-           map = averagedWeights[tagIndex][featIndex];
-           value = map.get(featureName);
-           if (value != null)
-               map.put(featureName, (iteration * change) + value);
-           else
-               map.put(featureName, iteration * change);
-      // }
+            if (!avgPenalizerWeight.containsKey(featureName))
+                avgPenalizerWeight.put(featureName, 0f);
+            avgPenalizerWeight.put(featureName, avgPenalizerWeight.get(featureName) + change);
+        }//   else {
+        // System.out.println(tagIndex+" "+featIndex+" "+featureName+" -> "+change);
+        HashMap<Integer, Float> map = featureWeights[tagIndex][featIndex];
+        Float value = map.get(featureName);
+        if (value != null)
+            map.put(featureName, change + value);
+        else
+            map.put(featureName, change);
+
+        map = averagedWeights[tagIndex][featIndex];
+        value = map.get(featureName);
+        if (value != null)
+            map.put(featureName, (iteration * change) + value);
+        else
+            map.put(featureName, iteration * change);
+        // }
         return change;
     }
 
@@ -128,8 +128,8 @@ public class AveragedPerceptron {
         }
 
         for (int i = 0; i < features.length; i++) {
-       //     if(features[i]== SpecialWords.unknown.value)
-         //       continue;
+            //     if(features[i]== SpecialWords.unknown.value)
+            //       continue;
             Float value = (weights[i]).get(features[i]);
 
             if (value != null)
@@ -139,24 +139,19 @@ public class AveragedPerceptron {
     }
 
     public float score(final int tagIndex, final int featIndex, final int feat, final boolean isDecode) {
-      float score=0f;
-        //if (feat == SpecialWords.unknown.value)
-       //     return score;
-       if(featIndex==featureSize()-1){
-            if(isDecode){
-                 if(avgPenalizerWeight.containsKey(feat))
-                     score=   avgPenalizerWeight.get(feat);
-            }   else {
-                if(penalizerWeight.containsKey(feat))
-                    score=   penalizerWeight.get(feat);
+        float score = 0f;
+        if (featIndex == featureSize() - 1) {
+            if (isDecode) {
+                if (avgPenalizerWeight.containsKey(feat))
+                    score = avgPenalizerWeight.get(feat);
+            } else {
+                if (penalizerWeight.containsKey(feat))
+                    score = penalizerWeight.get(feat);
             }
-       } // else {
-
-           HashMap<Integer, Float> map = isDecode ? averagedWeights[tagIndex][featIndex] : featureWeights[tagIndex][featIndex];
-
-           if (map.containsKey(feat))
-               score+= map.get(feat);
-     //  }
+        }
+        HashMap<Integer, Float> map = isDecode ? averagedWeights[tagIndex][featIndex] : featureWeights[tagIndex][featIndex];
+        if (map.containsKey(feat))
+            score += map.get(feat);
         return score;
     }
 
@@ -177,43 +172,43 @@ public class AveragedPerceptron {
     }
 
     public HashMap<Integer, Float>[][] getAveragedWeights() {
-        HashMap<Integer, Float>[][] avg=new HashMap[tagSize()][featureSize()];
-        for(int i=0;i<tagSize();i++){
-            for(int j=0;j<featureSize();j++){
-                HashMap<Integer,Float> w=featureWeights[i][j];
-                HashMap<Integer,Float> a=averagedWeights[i][j];
-                avg[i][j]=new HashMap<Integer, Float>();
+        HashMap<Integer, Float>[][] avg = new HashMap[tagSize()][featureSize()];
+        for (int i = 0; i < tagSize(); i++) {
+            for (int j = 0; j < featureSize(); j++) {
+                HashMap<Integer, Float> w = featureWeights[i][j];
+                HashMap<Integer, Float> a = averagedWeights[i][j];
+                avg[i][j] = new HashMap<Integer, Float>();
 
-                for(int key:w.keySet()){
-                    float val=w.get(key);
-                    float aVal=a.get(key);
-                    float newVal=val-(aVal/iteration);
-                    if(newVal!=0.0f)
-                        avg[i][j].put(key,newVal);
+                for (int key : w.keySet()) {
+                    float val = w.get(key);
+                    float aVal = a.get(key);
+                    float newVal = val - (aVal / iteration);
+                    if (newVal != 0.0f)
+                        avg[i][j].put(key, newVal);
                 }
             }
         }
         return avg;
     }
-    
-    public int dictCondition(int word, int tag){
-        int cond=0;
-        if(tagDictionary.containsKey(word)){
-            cond=0;
-            if(tagDictionary.get(word).contains(tag))
-                cond=1;
+
+    public int dictCondition(int word, int tag) {
+        int cond = 0;
+        if (tagDictionary.containsKey(word)) {
+            cond = 0;
+            if (tagDictionary.get(word).contains(tag))
+                cond = 1;
         }
         return cond;
     }
 
     public HashMap<Integer, Float> getAvgPenalizerWeight() {
-      HashMap<Integer,Float> avgP=new HashMap<Integer, Float>();
-        for(int f:penalizerWeight.keySet()){
-            float val=penalizerWeight.get(f)-(avgPenalizerWeight.get(f)/iteration);
-            if(val!=0f)
-                avgP.put(f,val);
+        HashMap<Integer, Float> avgP = new HashMap<Integer, Float>();
+        for (int f : penalizerWeight.keySet()) {
+            float val = penalizerWeight.get(f) - (avgPenalizerWeight.get(f) / iteration);
+            if (val != 0f)
+                avgP.put(f, val);
         }
-      
+
         return avgP;
     }
 }

@@ -44,9 +44,12 @@ public class Tagger {
 
         for (int v = 0; v < perceptron.tagSize(); v++) {
             for (int u = 0; u < perceptron.tagSize(); u++) {
+                // TODO(vsoto): -3? Ask Mohammad
                 bigramScore[u][v] = perceptron.score(v, featSize - 3, u, true);
                 for (int w = 0; w < tagSize; w++) {
+                    // TODO(vsoto): << 10?
                     int bigram = (w << 10) + u;
+                    // TODO(vsoto): -2? Ask Mohammad.
                     trigramScore[w][u][v] = perceptron.score(v, featSize - 2, bigram, true);
                 }
             }
@@ -110,7 +113,7 @@ public class Tagger {
 
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < tags.length; i++) {
-                output.append(i + "\t" + sentence.wordStrs[i] + "\t" + maps.reversedMap[sentence.lang_ids[i]] + "\t" + tags[i] + "\n");
+                output.append(i + "\t" + sentence.string_words[i] + "\t" + maps.reversedMap[sentence.lang_ids[i]] + "\t" + tags[i] + "\n");
                 corr += (tags[i] == maps.reversedMap[sentence.pos_tags[i]]) ? 1 : 0;
                 total++;
             }
@@ -169,7 +172,7 @@ public class Tagger {
 
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < tags.length; i++) {
-                output.append(i + "\t" + sentence.wordStrs[i] + "\t" + lang_ids[i] + "\t" + tags[i] + "\n");
+                output.append(i + "\t" + sentence.string_words[i] + "\t" + lang_ids[i] + "\t" + tags[i] + "\n");
             }
             writer.write(output.toString().trim() + "\n");
 

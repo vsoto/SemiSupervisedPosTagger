@@ -12,46 +12,45 @@ import java.util.ArrayList;
 
 public class Sentence {
     public int[] words;
-    public int[] lowerWords;
-    public String[] wordStrs;
+    public int[] lowercase_words;
+    public String[] string_words;
     public int[] pos_tags;
     public int[] lang_ids;
 
     public int[][] prefixes;
     public int[][] suffixes;
-    public int[][] brownClusters;
+    public int[][] brown_clusters;
 
-    public boolean[] containsNumber;
-    public boolean[] containsHyphen;
-    public boolean[] containsUpperCaseLetter;
+    public boolean[] contains_number;
+    public boolean[] contains_hyphen;
+    public boolean[] contains_uppercase;
 
-    public final static int brownSize = 12;
+    public final static int BROWN_SIZE = 12;
     public final static int NUM_FEATURES = 64;
     public final static int MAX_AFFIX_LENGTH = 4;
-
     private final static int BIT_SHIFT = 5;
 
 
     public Sentence(final ArrayList<String> words, final ArrayList<String> pos_tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
         this.words = new int[words.size()];
-        this.lowerWords = new int[words.size()];
-        this.wordStrs = new String[words.size()];
+        this.lowercase_words = new int[words.size()];
+        this.string_words = new String[words.size()];
         this.pos_tags = new int[pos_tags.size()];
         this.lang_ids = new int[lang_ids.size()];
 
         prefixes = new int[words.size()][MAX_AFFIX_LENGTH];
         suffixes = new int[words.size()][MAX_AFFIX_LENGTH];
-        brownClusters = new int[words.size()][brownSize];
-        containsNumber = new boolean[words.size()];
-        containsHyphen = new boolean[words.size()];
-        containsUpperCaseLetter = new boolean[words.size()];
+        brown_clusters = new int[words.size()][BROWN_SIZE];
+        contains_number = new boolean[words.size()];
+        contains_hyphen = new boolean[words.size()];
+        contains_uppercase = new boolean[words.size()];
 
         assert(words.size() == pos_tags.size());
         assert(words.size() == lang_ids.size());
 
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
-            this.wordStrs[i] = word;
+            this.string_words[i] = word;
             String lowerWord = word.toLowerCase();
             if (maps.stringMap.containsKey(word))
                 this.words[i] = maps.stringMap.get(word);
@@ -59,9 +58,9 @@ public class Sentence {
                 this.words[i] = SpecialWords.unknown.value;
 
             if (maps.stringMap.containsKey(word.toLowerCase()))
-                this.lowerWords[i] = maps.stringMap.get(word.toLowerCase());
+                this.lowercase_words[i] = maps.stringMap.get(word.toLowerCase());
             else
-                this.lowerWords[i] = SpecialWords.unknown.value;
+                this.lowercase_words[i] = SpecialWords.unknown.value;
 
             for (int p = 0; p < Math.min(MAX_AFFIX_LENGTH, word.length()); p++) {
                 String prefix = lowerWord.substring(0, p + 1);
@@ -84,25 +83,25 @@ public class Sentence {
                 }
             }
 
-            brownClusters[i] = maps.clusterIds(word);
+            brown_clusters[i] = maps.clusterIds(word);
 
-            boolean hasUpperCase = false;
-            boolean hasHyphen = false;
-            boolean hasNumber = false;
+            boolean has_uppercase = false;
+            boolean has_hyphen = false;
+            boolean has_number = false;
             for (char c : word.toCharArray()) {
-                if (!hasUpperCase && Character.isUpperCase(c))
-                    hasUpperCase = true;
-                if (!hasHyphen && c == '-')
-                    hasHyphen = true;
-                if (!hasNumber && Character.isDigit(c))
-                    hasNumber = true;
-                if (hasHyphen && hasNumber && hasUpperCase)
+                if (!has_uppercase && Character.isUpperCase(c))
+                    has_uppercase = true;
+                if (!has_hyphen && c == '-')
+                    has_hyphen = true;
+                if (!has_number && Character.isDigit(c))
+                    has_number = true;
+                if (has_hyphen && has_number && has_uppercase)
                     break;
             }
 
-            containsHyphen[i] = hasHyphen;
-            containsNumber[i] = hasNumber;
-            containsUpperCaseLetter[i] = hasUpperCase;
+            contains_hyphen[i] = has_hyphen;
+            contains_number[i] = has_number;
+            contains_uppercase[i] = has_uppercase;
 
             if (maps.stringMap.containsKey(lang_ids.get(i)))
                 this.lang_ids[i] = maps.stringMap.get(lang_ids.get(i));
@@ -119,8 +118,8 @@ public class Sentence {
         }
     }
 
-    public int[] get_emission_features(final int position, final int feat_size) {
-        int[] features = new int[feat_size];
+    public int[] get_emission_features(final int position) {
+        int[] features = new int[NUM_FEATURES];
         int index = 0;
         int length = words.length;
 
@@ -142,9 +141,9 @@ public class Sentence {
                 features[index++] = prefixes[position][i] << BIT_SHIFT | this.lang_ids[position];
                 features[index++] = suffixes[position][i] << BIT_SHIFT | this.lang_ids[position];
             }
-            features[index++] = (containsHyphen[position]) ? 1 : SpecialWords.unknown.value;
-            features[index++] = (containsNumber[position]) ? 1 : SpecialWords.unknown.value;
-            features[index++] = (containsUpperCaseLetter[position]) ? 1 : SpecialWords.unknown.value;
+            features[index++] = (contains_hyphen[position]) ? 1 : SpecialWords.unknown.value;
+            features[index++] = (contains_number[position]) ? 1 : SpecialWords.unknown.value;
+            features[index++] = (contains_uppercase[position]) ? 1 : SpecialWords.unknown.value;
 
         } else {
             System.out.println("Out!");
@@ -154,45 +153,45 @@ public class Sentence {
             }
         }
 
-        int prevWord = SpecialWords.start.value;
-        int prev2Word = SpecialWords.start.value;
-        int nextWord = SpecialWords.stop.value;
-        int next2Word = SpecialWords.stop.value;
-        int prevCluster = SpecialWords.unknown.value;
-        int prev2Cluster = SpecialWords.unknown.value;
+        int previous_word = SpecialWords.start.value;
+        int penultimate_word = SpecialWords.start.value;
+        int next_word = SpecialWords.stop.value;
+        int next_to_next_word = SpecialWords.stop.value;
+        int previous_cluster = SpecialWords.unknown.value;
+        int penultimate_cluster = SpecialWords.unknown.value;
 
-        int prevPosition = position - 1;
+        int previous_position = position - 1;
 
-        if (prevPosition >= 0) {
-            prevWord = words[prevPosition];
-            prevCluster = brownClusters[prevPosition][0];
-            int prev2Position = prevPosition - 1;
+        if (previous_position >= 0) {
+            previous_word = words[previous_position];
+            previous_cluster = brown_clusters[previous_position][0];
+            int penultimate_position = previous_position - 1;
 
-            if (prev2Position >= 0) {
-                prev2Word = words[prev2Position];
-                prev2Cluster = brownClusters[prev2Position][0];
+            if (penultimate_position >= 0) {
+                penultimate_word = words[penultimate_position];
+                penultimate_cluster = brown_clusters[penultimate_position][0];
             }
         }
 
-        int nextPosition = position + 1;
-        if (nextPosition < length) {
-            nextWord = words[nextPosition];
-            int next2Position = nextPosition + 1;
-            if (next2Position < length) {
-                next2Word = words[next2Position];
+        int next_position = position + 1;
+        if (next_position < length) {
+            next_word = words[next_position];
+            int next_next_position = next_position + 1;
+            if (next_next_position < length) {
+                next_to_next_word = words[next_next_position];
             }
         }
-        features[index++] = prevWord;
-        features[index++] = prev2Word;
-        features[index++] = nextWord;
-        features[index++] = next2Word;
+        features[index++] = previous_word;
+        features[index++] = penultimate_word;
+        features[index++] = next_word;
+        features[index++] = next_to_next_word;
 
-        features[index++] = prevCluster;
-        features[index++] = (prev2Cluster);
+        features[index++] = previous_cluster;
+        features[index++] = (penultimate_cluster);
 
-        for (int i = 1; i < brownSize; i++) {
+        for (int i = 1; i < BROWN_SIZE; i++) {
             if (position >= 0 && position < length) {
-                features[index++] = brownClusters[position][i];
+                features[index++] = brown_clusters[position][i];
             } else {
                 features[index++] = SpecialWords.unknown.value;
             }
@@ -200,17 +199,25 @@ public class Sentence {
         return features;
     }
 
-    public int[] getFeatures(final int position, final int prev2Tag, final int prevTag, final int featSize) {
-        int[] features = get_emission_features(position, featSize);
-        // -2 to add prevTag and bigram at the end.
-        int index = featSize - 4;
+    public int[] get_features(final int position, final int penultimate_tag, final int last_tag) {
+        int[] features = get_emission_features(position);
+        // -4 to add last_tag and bigram at the end.
+        int index = Sentence.NUM_FEATURES - 4;
+        int bigram = (penultimate_tag << 10) + last_tag;
 
-        features[index++] = prevTag;
-        int bigram = (prev2Tag << 10) + prevTag;
+        int max_length = words.length;
+
+        if (position < max_length) {
+            features[index++] = last_tag << BIT_SHIFT | this.lang_ids[position];
+            features[index++] = bigram << BIT_SHIFT | this.lang_ids[position];
+        } else {
+            // TODO(vsoto): do this
+            features[index++] = last_tag << BIT_SHIFT;
+            features[index++] = bigram << BIT_SHIFT;
+        }
+
+        features[index++] = last_tag;
         features[index++] = bigram;
-
-        features[index++] = prevTag << BIT_SHIFT | this.lang_ids[position];
-        features[index++] = bigram << BIT_SHIFT | this.lang_ids[position];
 
         return features;
     }

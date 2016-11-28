@@ -43,11 +43,11 @@ public class Viterbi {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position);
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
                 // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
-                int cond = perceptron.dictCondition(sentence.lowerWords[position], t);
+                int cond = perceptron.dictCondition(sentence.lowercase_words[position], t);
                 if (cond != -1)
                     emissionScore[position][t] += perceptron.score(t, perceptron.featureSize() - 1, cond, isDecode);
             }
@@ -145,9 +145,11 @@ public class Viterbi {
         if (!isDecode) {
             for (int v = 0; v < tagSize; v++) {
                 for (int u = 0; u < tagSize; u++) {
+                    // TODO(vsoto): Ask Mohammad
                     bigramScore[u][v] = perceptron.score(v, featSize - 3, u, isDecode);
                     for (int w = 0; w < tagSize; w++) {
                         int bigram = (w << 10) + u;
+                        // TODO(vsoto): Ask Mohammad
                         trigramScore[w][u][v] = perceptron.score(v, featSize - 2, bigram, isDecode);
                     }
                 }
@@ -158,10 +160,11 @@ public class Viterbi {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position);
+            // TODO(vsoto): Ask Mohammad
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-                int cond = perceptron.dictCondition(sentence.lowerWords[position], t);
+                int cond = perceptron.dictCondition(sentence.lowercase_words[position], t);
                 if (cond != -1)
                     emissionScore[position][t] += perceptron.score(t, perceptron.featureSize() - 1, cond, isDecode);
             }

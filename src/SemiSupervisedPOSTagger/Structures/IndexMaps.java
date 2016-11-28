@@ -30,15 +30,15 @@ public class IndexMaps implements Serializable {
     }
 
     public int[] clusterIds(String word) {
-        int[] ids = new int[Sentence.brownSize + 1];
-        for (int i = 0; i < Sentence.brownSize + 1; i++)
+        int[] ids = new int[Sentence.BROWN_SIZE + 1];
+        for (int i = 0; i < Sentence.BROWN_SIZE + 1; i++)
             ids[i] = SpecialWords.unknown.value;
 
         if (brownFullClusters.containsKey(word))
             ids[0] = brownFullClusters.get(word);
 
         if (ids[0] > 0) {
-            for (int j = 1; j < Sentence.brownSize + 1; j++)
+            for (int j = 1; j < Sentence.BROWN_SIZE + 1; j++)
                 ids[j] = brownNClusters[j - 1].get(ids[0]);
         }
         return ids;

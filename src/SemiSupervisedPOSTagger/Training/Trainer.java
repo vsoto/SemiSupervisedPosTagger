@@ -11,9 +11,6 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -27,7 +24,7 @@ public class Trainer {
 
 
     public static void train(final Options options, String tagDictionaryPath) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, tagDictionaryPath, Sentence.BROWN_SIZE);
         int unknownIndex = -1;
 
         // reading train and dev sentences to a vector
@@ -150,8 +147,8 @@ public class Trainer {
 
             if ((gold != predicted || predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag)
                     && gold != unknownIndex && gold_prev2_tag != unknownIndex && goldPrevTag != unknownIndex) {
-                int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
-                int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
+                int[] predicted_features = sen.get_features(t, predicted_prev2_tag, predictedPrevTag);
+                int[] gold_features = sen.get_features(t, gold_prev2_tag, goldPrevTag);
 
                 for (int f = 0; f < featSize - 1; f++) {
                     int pfeat = predicted_features[f];
@@ -168,12 +165,12 @@ public class Trainer {
 
                 if (gold != predicted) {
                     //   int gCond=classifier.dictCondition(sen.lowerWords[t],gold);
-                    int gCond = classifier.dictCondition(sen.lowerWords[t], gold);
+                    int gCond = classifier.dictCondition(sen.lowercase_words[t], gold);
                     if (gCond != -1)
                         classifier.changeWeight(gold, classifier.featureSize() - 1, gCond, 1);
 
                     // int pCond=classifier.dictCondition(sen.lowerWords[t],predicted);
-                    int pCond = classifier.dictCondition(sen.lowerWords[t], predicted);
+                    int pCond = classifier.dictCondition(sen.lowercase_words[t], predicted);
                     if (pCond != -1)
                         classifier.changeWeight(predicted, classifier.featureSize() - 1, pCond, -1);
                 }
@@ -199,9 +196,11 @@ public class Trainer {
             }
 
             if ((predictedPrevTag != goldPrevTag || predicted_prev2_tag != gold_prev2_tag) && gold_prev2_tag != unknownIndex && goldPrevTag != unknownIndex) {
-                int[] predicted_features = sen.getFeatures(t, predicted_prev2_tag, predictedPrevTag, featSize);
-                int[] gold_features = sen.getFeatures(t, gold_prev2_tag, goldPrevTag, featSize);
+                int[] predicted_features = sen.get_features(t, predicted_prev2_tag, predictedPrevTag);
+                int[] gold_features = sen.get_features(t, gold_prev2_tag, goldPrevTag);
 
+                // TODO(vsoto): from -3 to -1??? Is this assumming that the last two features are the last two tags?
+                // Ask Mohammad
                 for (int f = featSize - 3; f < featSize - 1; f++) {
                     int pfeat = predicted_features[f];
                     int gfeat = gold_features[f];
