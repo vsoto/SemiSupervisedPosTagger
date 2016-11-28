@@ -46,7 +46,7 @@ public class BeamTagger {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
                // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
@@ -71,10 +71,10 @@ public class BeamTagger {
                 int prev3Tag=currentPosition>2?state.tags[currentPosition-3]:0;
 
                 ArrayList<Integer> possibleTags=new ArrayList<Integer>();
-                if(sentence.tags[i]==-1 || ! usePartialInfo)
+                if(sentence.pos_tags[i]==-1 || ! usePartialInfo)
                     possibleTags=allTags;
                 else
-                    possibleTags.add(sentence.tags[i]);
+                    possibleTags.add(sentence.pos_tags[i]);
 
                 for(int tagDecision : possibleTags) {
                     float es=emission_score[currentPosition][tagDecision];
@@ -152,7 +152,7 @@ public class BeamTagger {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, isDecode);
               //  int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
@@ -177,10 +177,10 @@ public class BeamTagger {
                 int prev3Tag=currentPosition>2?state.tags[currentPosition-3]:0;
 
                 ArrayList<Integer> possibleTags=new ArrayList<Integer>();
-                if(sentence.tags[i]==-1 || ! usePartialInfo)
+                if(sentence.pos_tags[i]==-1 || ! usePartialInfo)
                     possibleTags=allTags;
                 else
-                    possibleTags.add(sentence.tags[i]);
+                    possibleTags.add(sentence.pos_tags[i]);
 
                 for(int tagDecision : possibleTags) {
                     float es=emission_score[currentPosition][tagDecision];
@@ -250,7 +250,7 @@ public class BeamTagger {
         float trigramScore[][][]=tagger.trigramScore;
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, true);
            //     int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
@@ -349,7 +349,7 @@ public class BeamTagger {
         int featSize = perceptron.featureSize();
         
         boolean isPartial=false;
-        for(int tag:sentence.tags)
+        for(int tag:sentence.pos_tags)
         if(tag==unknownIndex){
             isPartial=true;
             break;
@@ -376,7 +376,7 @@ public class BeamTagger {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, false);
              //   int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
@@ -412,18 +412,18 @@ public class BeamTagger {
                 }
             }
             
-                if (sentence.tags[goldState.currentPosition] != unknownIndex) {
+                if (sentence.pos_tags[goldState.currentPosition] != unknownIndex) {
                     int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
                     int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
                     if (prevTag != unknownIndex && prev2Tag != unknownIndex) {
-                        float es = emission_score[goldState.currentPosition][sentence.tags[goldState.currentPosition]];
+                        float es = emission_score[goldState.currentPosition][sentence.pos_tags[goldState.currentPosition]];
                         float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
-                        float ts = trigramScore[prev2Tag][prevTag][sentence.tags[goldState.currentPosition]];
+                        float ts = trigramScore[prev2Tag][prevTag][sentence.pos_tags[goldState.currentPosition]];
                         float score = es + bs + ts + goldState.score;
                         goldState.score = score;
                     }
                 }
-                goldState.tags[goldState.currentPosition] = sentence.tags[goldState.currentPosition];
+                goldState.tags[goldState.currentPosition] = sentence.pos_tags[goldState.currentPosition];
                 goldState.currentPosition++;
 
             ArrayList<TaggingState> newBeam = new ArrayList<TaggingState>();
@@ -437,7 +437,7 @@ public class BeamTagger {
                 if (updateMode.value != updateMode.standard.value && !oracleInBeam) {
                     boolean same = true;
                     for (int j = 0; j <= state.currentPosition; j++) {
-                        if (sentence.tags[i] != state.tags[i] && sentence.tags[i]!=unknownIndex) {
+                        if (sentence.pos_tags[i] != state.tags[i] && sentence.pos_tags[i]!=unknownIndex) {
                             same = false;
                             break;
                         }
@@ -507,11 +507,12 @@ public class BeamTagger {
         int featSize = perceptron.featureSize();
 
         boolean isPartial=false;
-        for(int tag:sentence.tags)
-            if(tag==unknownIndex){
-                isPartial=true;
+        for(int tag:sentence.pos_tags) {
+            if (tag == unknownIndex) {
+                isPartial = true;
                 break;
             }
+        }
 
 
         ArrayList<TaggingState> maxStates=new ArrayList<TaggingState>(n);
@@ -537,7 +538,7 @@ public class BeamTagger {
         }
 
         for (int position = 0; position < sentence.words.length; position++) {
-            int[] emissionFeatures = sentence.getEmissionFeatures(position, featSize);
+            int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emission_score[position][t] = perceptron.score(emissionFeatures, t, false);
                 //   int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
@@ -573,18 +574,18 @@ public class BeamTagger {
                 }
             }
 
-            if (sentence.tags[goldState.currentPosition] != unknownIndex) {
+            if (sentence.pos_tags[goldState.currentPosition] != unknownIndex) {
                 int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
                 int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
                 if (prevTag != unknownIndex && prev2Tag != unknownIndex) {
-                    float es = emission_score[goldState.currentPosition][sentence.tags[goldState.currentPosition]];
+                    float es = emission_score[goldState.currentPosition][sentence.pos_tags[goldState.currentPosition]];
                     float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
-                    float ts = trigramScore[prev2Tag][prevTag][sentence.tags[goldState.currentPosition]];
+                    float ts = trigramScore[prev2Tag][prevTag][sentence.pos_tags[goldState.currentPosition]];
                     float score = es + bs + ts + goldState.score;
                     goldState.score = score;
                 }
             }
-            goldState.tags[goldState.currentPosition] = sentence.tags[goldState.currentPosition];
+            goldState.tags[goldState.currentPosition] = sentence.pos_tags[goldState.currentPosition];
             goldState.currentPosition++;
 
             ArrayList<TaggingState> newBeam = new ArrayList<TaggingState>();
@@ -598,7 +599,7 @@ public class BeamTagger {
                 if (updateMode.value != updateMode.standard.value && !oracleInBeam) {
                     boolean same = true;
                     for (int j = 0; j <= state.currentPosition; j++) {
-                        if (sentence.tags[i] != state.tags[i] && sentence.tags[i]!=unknownIndex) {
+                        if (sentence.pos_tags[i] != state.tags[i] && sentence.pos_tags[i]!=unknownIndex) {
                             same = false;
                             break;
                         }

@@ -16,15 +16,15 @@ import java.util.HashSet;
 
 public class InfoStruct implements Serializable {
     public HashMap<Integer, Float>[][] averagedWeights;
-    public HashMap<Integer,Float> penalizerWeight;
+    public HashMap<Integer, Float> penalizerWeight;
 
-    public HashMap<Integer,HashSet<Integer>> tagDictionary;
+    public HashMap<Integer, HashSet<Integer>> tagDictionary;
     public int tagSize;
     public int featSize;
     public int beamSize;
     public boolean useBeamSearch;
 
-    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize,HashMap<Integer,HashSet<Integer>> tagDictionary,HashMap<Integer,Float> penalizerWeight, boolean doAveraging) {
+    public InfoStruct(AveragedPerceptron perceptron, boolean useBeamSearch, int beamSize, HashMap<Integer, HashSet<Integer>> tagDictionary, HashMap<Integer, Float> penalizerWeight, boolean doAveraging) {
         if (doAveraging)
             averagedWeights = perceptron.getAveragedWeights();
         else

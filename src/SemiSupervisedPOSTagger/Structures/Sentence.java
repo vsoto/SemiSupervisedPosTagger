@@ -14,7 +14,7 @@ public class Sentence {
     public int[] words;
     public int[] lowerWords;
     public String[] wordStrs;
-    public int[] tags;
+    public int[] pos_tags;
     public int[] lang_ids;
 
     public int[][] prefixes;
@@ -27,27 +27,26 @@ public class Sentence {
 
     public final static int brownSize = 12;
 
+    private final static int MAX_AFFIX_LENGTH = 4;
     private final static int BIT_SHIFT = 5;
 
 
-    public Sentence(final ArrayList<String> words, final ArrayList<String> tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
+    public Sentence(final ArrayList<String> words, final ArrayList<String> pos_tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
         this.words = new int[words.size()];
         this.lowerWords = new int[words.size()];
         this.wordStrs = new String[words.size()];
-        this.tags = new int[tags.size()];
+        this.pos_tags = new int[pos_tags.size()];
         this.lang_ids = new int[lang_ids.size()];
 
-        prefixes = new int[words.size()][4];
-        suffixes = new int[words.size()][4];
+        prefixes = new int[words.size()][MAX_AFFIX_LENGTH];
+        suffixes = new int[words.size()][MAX_AFFIX_LENGTH];
         brownClusters = new int[words.size()][brownSize];
         containsNumber = new boolean[words.size()];
         containsHyphen = new boolean[words.size()];
         containsUpperCaseLetter = new boolean[words.size()];
 
-        if (words.size() != tags.size() || words.size() != lang_ids.size()) {
-            System.out.println("What?!! ERROR");
-        }
-
+        assert(words.size() == pos_tags.size());
+        assert(words.size() == lang_ids.size());
 
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i);
@@ -63,7 +62,7 @@ public class Sentence {
             else
                 this.lowerWords[i] = SpecialWords.unknown.value;
 
-            for (int p = 0; p < Math.min(4, word.length()); p++) {
+            for (int p = 0; p < Math.min(MAX_AFFIX_LENGTH, word.length()); p++) {
                 String prefix = lowerWord.substring(0, p + 1);
                 String suffix = lowerWord.substring(word.length() - p - 1);
 
@@ -77,8 +76,8 @@ public class Sentence {
                 else
                     suffixes[i][p] = SpecialWords.unknown.value;
             }
-            if (word.length() < 4) {
-                for (int p = word.length(); p < 4; p++) {
+            if (word.length() < MAX_AFFIX_LENGTH) {
+                for (int p = word.length(); p < MAX_AFFIX_LENGTH; p++) {
                     prefixes[i][p] = SpecialWords.unknown.value;
                     suffixes[i][p] = SpecialWords.unknown.value;
                 }
@@ -110,30 +109,31 @@ public class Sentence {
                 this.lang_ids[i] = SpecialWords.unknown.value;
 
 
-            if (tags.get(i).equals("***")) //for unknown tag
-                this.tags[i] = SpecialWords.unknown.value;
-            else if (maps.stringMap.containsKey(tags.get(i)))
-                this.tags[i] = maps.stringMap.get(tags.get(i));
+            if (pos_tags.get(i).equals("***")) //for unknown tag
+                this.pos_tags[i] = SpecialWords.unknown.value;
+            else if (maps.stringMap.containsKey(pos_tags.get(i)))
+                this.pos_tags[i] = maps.stringMap.get(pos_tags.get(i));
             else
-                this.tags[i] = SpecialWords.unknown.value;
+                this.pos_tags[i] = SpecialWords.unknown.value;
         }
     }
 
-    public int[] getEmissionFeatures(final int position, final int featSize) {
-        int[] features = new int[featSize];
+    public int[] get_emission_features(final int position, final int feat_size) {
+        int[] features = new int[feat_size];
         int index = 0;
         int length = words.length;
 
-        int currentWord = 0;
+        int current_word = 0;
         if (position >= 0 && position < length)
-            currentWord = words[position];
+            current_word = words[position];
         else if (position >= length)
-            currentWord = 1;
+            // TODO(vsoto): What is this?
+            current_word = 1;
 
-        features[index++] = currentWord;
+        features[index++] = current_word;
 
         if (position >= 0 && position < length) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < MAX_AFFIX_LENGTH; i++) {
                 features[index++] = prefixes[position][i];
                 features[index++] = suffixes[position][i];
                 // TODO(vsoto): do this for every other feature.
@@ -145,7 +145,8 @@ public class Sentence {
             features[index++] = (containsUpperCaseLetter[position]) ? 1 : SpecialWords.unknown.value;
 
         } else {
-            for (int i = 0; i < 11; i++) {
+            // TODO(vsoto): 19 is 4*4 + 3. Look at loop in if clause
+            for (int i = 0; i < 19; i++) {
                 features[index++] = SpecialWords.unknown.value;
             }
         }
@@ -156,8 +157,6 @@ public class Sentence {
         int next2Word = SpecialWords.stop.value;
         int prevCluster = SpecialWords.unknown.value;
         int prev2Cluster = SpecialWords.unknown.value;
-        int nextCluster = SpecialWords.unknown.value;
-        int next2Cluster = SpecialWords.unknown.value;
 
         int prevPosition = position - 1;
 
@@ -175,11 +174,9 @@ public class Sentence {
         int nextPosition = position + 1;
         if (nextPosition < length) {
             nextWord = words[nextPosition];
-            nextCluster = brownClusters[nextPosition][0];
             int next2Position = nextPosition + 1;
             if (next2Position < length) {
                 next2Word = words[next2Position];
-                next2Cluster = brownClusters[next2Position][0];
             }
         }
         features[index++] = prevWord;
@@ -190,27 +187,18 @@ public class Sentence {
         features[index++] = prevCluster;
         features[index++] = (prev2Cluster);
 
-        //  features[index++]=nextCluster;
-        // features[index++]=next2Cluster;
-
         for (int i = 1; i < brownSize; i++) {
             if (position >= 0 && position < length) {
-                //  features[index++] = brownClusters[position][0];
                 features[index++] = brownClusters[position][i];
-                //    features[index++] = brownClusters[position][2];
             } else {
-                //  features[index++]=SpecialWords.unknown.value;
                 features[index++] = SpecialWords.unknown.value;
-                //  features[index++] = SpecialWords.unknown.value;
             }
         }
-
         return features;
-
     }
 
     public int[] getFeatures(final int position, final int prev2Tag, final int prevTag, final int featSize) {
-        int[] features = getEmissionFeatures(position, featSize);
+        int[] features = get_emission_features(position, featSize);
         // -2 to add prevTag and bigram at the end.
         int index = featSize - 4;
 

@@ -90,12 +90,12 @@ public class Trainer {
             TaggingState predictedState = bestStates.get(0);
             int[] predictedTags = predictedState.tags;
             int currentPosition = predictedState.currentPosition;
-            assert (predictedTags.length == sen.tags.length);
+            assert (predictedTags.length == sen.pos_tags.length);
 
             boolean same = true;
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
-                int gold = sen.tags[t];
+                int gold = sen.pos_tags[t];
                 if (gold != unknownIndex && predicted != gold) {
                     same = false;
                 } else
@@ -110,12 +110,12 @@ public class Trainer {
             }
         } else {
             int[] predictedTags = Tagger.tag(sen, classifier, false, useBeamSearch, beamSize, false);
-            assert (predictedTags.length == sen.tags.length);
+            assert (predictedTags.length == sen.pos_tags.length);
 
             boolean same = true;
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
-                int gold = sen.tags[t];
+                int gold = sen.pos_tags[t];
                 if (predicted != gold && gold != unknownIndex) {
                     same = false;
                 } else
@@ -133,7 +133,7 @@ public class Trainer {
     private static void updateWeights(final Sentence sen, AveragedPerceptron classifier, final int[] predictedTags, final int featSize, final int currentPosition, final int unknownIndex) {
         for (int t = 0; t < currentPosition; t++) {
             int predicted = predictedTags[t];
-            int gold = sen.tags[t];
+            int gold = sen.pos_tags[t];
             int predictedPrevTag = 0;
             int predicted_prev2_tag = 0;
             int goldPrevTag = 0;
@@ -141,10 +141,10 @@ public class Trainer {
 
             if (t > 0) {
                 predictedPrevTag = predictedTags[t - 1];
-                goldPrevTag = sen.tags[t - 1];
+                goldPrevTag = sen.pos_tags[t - 1];
                 if (t > 1) {
                     predicted_prev2_tag = predictedTags[t - 2];
-                    gold_prev2_tag = sen.tags[t - 2];
+                    gold_prev2_tag = sen.pos_tags[t - 2];
                 }
             }
 
@@ -191,10 +191,10 @@ public class Trainer {
 
             if (t > 0) {
                 predictedPrevTag = predictedTags[t - 1];
-                goldPrevTag = sen.tags[t - 1];
+                goldPrevTag = sen.pos_tags[t - 1];
                 if (t > 1) {
                     predicted_prev2_tag = predictedTags[t - 2];
-                    gold_prev2_tag = sen.tags[t - 2];
+                    gold_prev2_tag = sen.pos_tags[t - 2];
                 }
             }
 
@@ -233,12 +233,12 @@ public class Trainer {
                 System.out.print((s + 1) + " ");
             int[] predictedTags = tagger.tag(sen, false);
 
-            assert (predictedTags.length == sen.tags.length);
+            assert (predictedTags.length == sen.pos_tags.length);
 
             boolean same = true;
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
-                int gold = sen.tags[t];
+                int gold = sen.pos_tags[t];
                 if (predicted == gold) {
                     corr++;
                 } else {
@@ -279,12 +279,12 @@ public class Trainer {
                 System.out.print((s + 1) + " ");
             int[] predictedTags = tagger.tag(sen, false, false);
 
-            assert (predictedTags.length == sen.tags.length);
+            assert (predictedTags.length == sen.pos_tags.length);
 
             boolean same = true;
             for (int t = 0; t < predictedTags.length; t++) {
                 int predicted = predictedTags[t];
-                int gold = sen.tags[t];
+                int gold = sen.pos_tags[t];
                 if (predicted == gold) {
                     corr++;
                 } else {

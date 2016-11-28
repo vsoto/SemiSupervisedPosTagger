@@ -8,34 +8,34 @@ package SemiSupervisedPOSTagger.Structures;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 
-public class TaggingState implements Cloneable{
+public class TaggingState implements Cloneable {
     public int[] tags;
     public int currentPosition;
     public float score;
 
-    public TaggingState(int[] tags, int currentPosition,float score) {
+    public TaggingState(int[] tags, int currentPosition, float score) {
         this.tags = tags;
         this.currentPosition = currentPosition;
-        this.score=score;
+        this.score = score;
     }
 
-    public TaggingState( int size) {
-        tags=new int[size];
+    public TaggingState(int size) {
+        tags = new int[size];
         this.currentPosition = 0;
-        score=0;
+        score = 0;
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         return false;
     }
 
     @Override
-    public TaggingState clone(){
-       int[] t=new int[tags.length];
-        for(int i=0;i<=currentPosition;i++){
-            t[i]=tags[i];
+    public TaggingState clone() {
+        int[] t = new int[tags.length];
+        for (int i = 0; i <= currentPosition; i++) {
+            t[i] = tags[i];
         }
-        return new TaggingState(t,currentPosition,score);
+        return new TaggingState(t, currentPosition, score);
     }
 }

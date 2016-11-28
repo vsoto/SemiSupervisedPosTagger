@@ -21,25 +21,25 @@ public class BeamElement implements Comparable<BeamElement> {
 
     @Override
     public int compareTo(BeamElement beamElement) {
-        float diff=score-beamElement.score;
-        if(diff>0)
+        float diff = score - beamElement.score;
+        if (diff > 0)
             return 1;
-        else if(diff<0)
+        else if (diff < 0)
             return -1;
-        else{
-            diff=beamNum-beamElement.beamNum;
-            if(diff>0)
+        else {
+            diff = beamNum - beamElement.beamNum;
+            if (diff > 0)
                 return 1;
-            else if(diff<0)
+            else if (diff < 0)
                 return -1;
-            else{
-                return (tagDecision-beamElement.tagDecision);
+            else {
+                return (tagDecision - beamElement.tagDecision);
             }
         }
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         return false;
     }
 }

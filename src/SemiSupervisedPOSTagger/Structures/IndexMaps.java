@@ -11,41 +11,41 @@ import java.util.HashSet;
  * Time: 4:56 PM
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
-public class IndexMaps  implements Serializable {
-    public HashMap<String,Integer> stringMap;
+public class IndexMaps implements Serializable {
+    public HashMap<String, Integer> stringMap;
     public String[] reversedMap;
     public final int tagSize;
-    private   HashMap<Integer,Integer>[]  brownNClusters;
-    private HashMap<String,Integer>  brownFullClusters;
-    private HashMap<Integer,HashSet<Integer>> tagDictionary;
+    private HashMap<Integer, Integer>[] brownNClusters;
+    private HashMap<String, Integer> brownFullClusters;
+    private HashMap<Integer, HashSet<Integer>> tagDictionary;
 
     public IndexMaps(int tagSize, HashMap<String, Integer> stringMap, String[] reversedMap,
-                     HashMap<Integer,Integer>[]  brownNClusters,HashMap<String,Integer>  brownFullClusters,HashMap<Integer,HashSet<Integer>> tagDictionary) {
+                     HashMap<Integer, Integer>[] brownNClusters, HashMap<String, Integer> brownFullClusters, HashMap<Integer, HashSet<Integer>> tagDictionary) {
         this.tagSize = tagSize;
         this.stringMap = stringMap;
         this.reversedMap = reversedMap;
-        this.brownNClusters=brownNClusters;
-        this.brownFullClusters=brownFullClusters;
-        this.tagDictionary=tagDictionary;
+        this.brownNClusters = brownNClusters;
+        this.brownFullClusters = brownFullClusters;
+        this.tagDictionary = tagDictionary;
     }
 
-    public int[] clusterIds(String word){
-        int[] ids=new int[Sentence.brownSize+1];
-        for(int i=0;i<Sentence.brownSize+1;i++)
-            ids[i]=SpecialWords.unknown.value;
-        
-        if(brownFullClusters.containsKey(word))
-            ids[0]=brownFullClusters.get(word);
+    public int[] clusterIds(String word) {
+        int[] ids = new int[Sentence.brownSize + 1];
+        for (int i = 0; i < Sentence.brownSize + 1; i++)
+            ids[i] = SpecialWords.unknown.value;
 
-        if(ids[0]>0){
-            for(int j=1;j<Sentence.brownSize+1;j++)
-                ids[j]=brownNClusters[j-1].get(ids[0]);
+        if (brownFullClusters.containsKey(word))
+            ids[0] = brownFullClusters.get(word);
+
+        if (ids[0] > 0) {
+            for (int j = 1; j < Sentence.brownSize + 1; j++)
+                ids[j] = brownNClusters[j - 1].get(ids[0]);
         }
         return ids;
     }
 
-    public boolean hasClusters(){
-        if(brownFullClusters!=null && brownFullClusters.size()>0)
+    public boolean hasClusters() {
+        if (brownFullClusters != null && brownFullClusters.size() > 0)
             return true;
         return false;
     }

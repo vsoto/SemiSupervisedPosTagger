@@ -111,7 +111,7 @@ public class Tagger {
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < tags.length; i++) {
                 output.append(i + "\t" + sentence.wordStrs[i] + "\t" + maps.reversedMap[sentence.lang_ids[i]] + "\t" + tags[i] + "\n");
-                corr += (tags[i] == maps.reversedMap[sentence.tags[i]]) ? 1 : 0;
+                corr += (tags[i] == maps.reversedMap[sentence.pos_tags[i]]) ? 1 : 0;
                 total++;
             }
             writer.write(output.toString().trim() + "\n");
