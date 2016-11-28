@@ -20,7 +20,7 @@ public class Main {
         System.out.println(options);
 
         if (options.train && options.trainPath != "" && options.modelPath != "")
-            Trainer.train(options, options.tagDictionaryPath);
+            Trainer.train(options);
         else if (options.tag && options.inputPath != "" && options.modelPath != "" && options.outputPath != "") {
             Tagger tagger = new Tagger(options.modelPath);
             tagger.tag(options.inputPath, options.outputPath, options.scoreFile);

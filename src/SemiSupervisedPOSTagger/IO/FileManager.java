@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -19,6 +20,9 @@ import java.util.HashSet;
  */
 
 public class FileManager {
+
+    public final static HashSet<String> UNIVERSAL_POS_TAGSET = new HashSet<String>(Arrays.asList("ADP", "ADJ", "ADV", "AUX", "CONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "UNK", "VERB", "X"));
+    public final static HashSet<String> LANGID_TAGSET = new HashSet<String>(Arrays.asList("spa", "eng", "eng&spa", "fra", "ita", "UNK"));
 
 
     public static ArrayList<Sentence> readSentences(String filePath, IndexMaps maps) throws Exception {
@@ -61,8 +65,8 @@ public class FileManager {
 
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
 
-        HashSet<String> tags = new HashSet<String>();
         HashSet<String> words = new HashSet<String>();
+        HashSet<String> pos_tags = new HashSet<String>();
         HashSet<String> lang_ids = new HashSet<String>();
 
         String line;
@@ -80,26 +84,35 @@ public class FileManager {
                         words.add(prefix);
                         words.add(suffix);
                     }
-                    tags.add(pos_tag);
                     words.add(word);
+                    pos_tags.add(pos_tag);
                     lang_ids.add(lang_id);
                 }
             }
         }
+
+        for (String tag : pos_tags) {
+            assert(UNIVERSAL_POS_TAGSET.contains(tag));
+        }
+
+        for (String lang_id : lang_ids) {
+            assert(LANGID_TAGSET.contains(lang_id));
+        }
+
 
         // 0 and 1 are reserved for stop and start
         int index = 2;
         stringMap.put("<<START>>", 0);
         stringMap.put("<<STOP>>", 1);
 
+        for (String t : UNIVERSAL_POS_TAGSET) {
+            if (!stringMap.containsKey(t))
+                stringMap.put(t, index++);
+        }
+
         for (String lang_id : lang_ids) {
             if (!stringMap.containsKey(lang_id))
                 stringMap.put(lang_id, index++);
-        }
-
-        for (String t : tags) {
-            if (!stringMap.containsKey(t))
-                stringMap.put(t, index++);
         }
 
         if (clusterFile.length() > 0) {
@@ -146,7 +159,7 @@ public class FileManager {
             reversedMap[stringMap.get(k)] = k;
         }
 
-        int tagSize = tags.size() + 2;
+        int tag_size = UNIVERSAL_POS_TAGSET.size() + 2;
         System.out.print("done!\n");
 
         HashMap<Integer, HashSet<Integer>> tagDictionary = new HashMap<Integer, HashSet<Integer>>();
@@ -173,6 +186,6 @@ public class FileManager {
             }
         }
 
-        return new IndexMaps(tagSize, stringMap, reversedMap, clusterNMap, clusterMap, tagDictionary);
+        return new IndexMaps(tag_size, stringMap, reversedMap, clusterNMap, clusterMap, tagDictionary);
     }
 }

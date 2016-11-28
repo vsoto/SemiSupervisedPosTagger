@@ -23,8 +23,8 @@ import java.util.zip.GZIPOutputStream;
 public class Trainer {
 
 
-    public static void train(final Options options, String tagDictionaryPath) throws Exception {
-        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, tagDictionaryPath, Sentence.BROWN_SIZE);
+    public static void train(final Options options) throws Exception {
+        IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, options.tagDictionaryPath, Sentence.BROWN_SIZE);
         int unknownIndex = -1;
 
         // reading train and dev sentences to a vector
