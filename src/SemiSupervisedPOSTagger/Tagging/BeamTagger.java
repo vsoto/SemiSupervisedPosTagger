@@ -578,9 +578,6 @@ public class BeamTagger {
                 int prevTag = goldState.currentPosition > 0 ? goldState.tags[goldState.currentPosition - 1] : 0;
                 int prev2Tag = goldState.currentPosition > 1 ? goldState.tags[goldState.currentPosition - 2] : 0;
                 if (prevTag != unknownIndex && prev2Tag != unknownIndex) {
-                    System.out.println(goldState.currentPosition);
-                    System.out.println(sentence.pos_tags.length);
-                    System.out.println(sentence.pos_tags[goldState.currentPosition]);
                     float es = emission_score[goldState.currentPosition][sentence.pos_tags[goldState.currentPosition]];
                     float bs = bigramScore[prevTag][goldState.tags[goldState.currentPosition]];
                     float ts = trigramScore[prev2Tag][prevTag][sentence.pos_tags[goldState.currentPosition]];

@@ -133,7 +133,6 @@ public class Sentence {
         features[index++] = current_word;
 
         if (position >= 0 && position < length) {
-            System.out.println("In!");
             for (int i = 0; i < MAX_AFFIX_LENGTH; i++) {
                 features[index++] = prefixes[position][i];
                 features[index++] = suffixes[position][i];
@@ -146,7 +145,6 @@ public class Sentence {
             features[index++] = (contains_uppercase[position]) ? 1 : SpecialWords.unknown.value;
 
         } else {
-            System.out.println("Out!");
             // TODO(vsoto): 19 is 4*4 + 3. Look at loop in if clause
             for (int i = 0; i < 19; i++) {
                 features[index++] = SpecialWords.unknown.value;
