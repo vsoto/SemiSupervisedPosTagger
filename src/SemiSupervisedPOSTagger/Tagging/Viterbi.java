@@ -14,7 +14,7 @@ import SemiSupervisedPOSTagger.Structures.SpecialWords;
  */
 
 public class Viterbi {
-    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode,final Tagger tagger) {
+    public static int[] thirdOrder(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, final Tagger tagger) {
         int len = sentence.words.length + 1;
 
         float inf = Float.POSITIVE_INFINITY;
@@ -46,10 +46,10 @@ public class Viterbi {
             int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-               // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
-                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
-                if(cond!=-1)
-                    emissionScore[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
+                // int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
+                int cond = perceptron.dictCondition(sentence.lowerWords[position], t);
+                if (cond != -1)
+                    emissionScore[position][t] += perceptron.score(t, perceptron.featureSize() - 1, cond, isDecode);
             }
         }
 
@@ -129,7 +129,7 @@ public class Viterbi {
         return tags;
     }
 
-    public static Pair<int[],Float> thirdOrderWithScore(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode,final Tagger tagger) {
+    public static Pair<int[], Float> thirdOrderWithScore(final Sentence sentence, final AveragedPerceptron perceptron, final boolean isDecode, final Tagger tagger) {
         int len = sentence.words.length + 1;
 
         float inf = Float.POSITIVE_INFINITY;
@@ -161,10 +161,9 @@ public class Viterbi {
             int[] emissionFeatures = sentence.get_emission_features(position, featSize);
             for (int t = 2; t < tagSize; t++) {
                 emissionScore[position][t] = perceptron.score(emissionFeatures, t, isDecode);
-              //  int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
-                int cond=perceptron.dictCondition(sentence.lowerWords[position],t);
-                if(cond!=-1)
-                    emissionScore[position][t]+=perceptron.score(t,perceptron.featureSize()-1,cond ,isDecode) ;
+                int cond = perceptron.dictCondition(sentence.lowerWords[position], t);
+                if (cond != -1)
+                    emissionScore[position][t] += perceptron.score(t, perceptron.featureSize() - 1, cond, isDecode);
             }
         }
 
@@ -241,7 +240,7 @@ public class Viterbi {
             index--;
         }
 
-        return new Pair<int[], Float>(tags,maxVal);
+        return new Pair<int[], Float>(tags, maxVal);
     }
 
 }

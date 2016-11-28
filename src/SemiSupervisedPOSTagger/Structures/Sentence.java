@@ -26,8 +26,9 @@ public class Sentence {
     public boolean[] containsUpperCaseLetter;
 
     public final static int brownSize = 12;
+    public final static int NUM_FEATURES = 64;
+    public final static int MAX_AFFIX_LENGTH = 4;
 
-    private final static int MAX_AFFIX_LENGTH = 4;
     private final static int BIT_SHIFT = 5;
 
 
@@ -133,6 +134,7 @@ public class Sentence {
         features[index++] = current_word;
 
         if (position >= 0 && position < length) {
+            System.out.println("In!");
             for (int i = 0; i < MAX_AFFIX_LENGTH; i++) {
                 features[index++] = prefixes[position][i];
                 features[index++] = suffixes[position][i];
@@ -145,6 +147,7 @@ public class Sentence {
             features[index++] = (containsUpperCaseLetter[position]) ? 1 : SpecialWords.unknown.value;
 
         } else {
+            System.out.println("Out!");
             // TODO(vsoto): 19 is 4*4 + 3. Look at loop in if clause
             for (int i = 0; i < 19; i++) {
                 features[index++] = SpecialWords.unknown.value;
@@ -206,12 +209,6 @@ public class Sentence {
         int bigram = (prev2Tag << 10) + prevTag;
         features[index++] = bigram;
 
-        System.out.println("Position: " +  position);
-        System.out.println("Length: " + this.lang_ids.length);
-        for (int i = 0 ; i < this.lang_ids.length; ++i) {
-            System.out.print(" " + this.lang_ids[i]);
-        }
-        System.out.println(" ");
         features[index++] = prevTag << BIT_SHIFT | this.lang_ids[position];
         features[index++] = bigram << BIT_SHIFT | this.lang_ids[position];
 

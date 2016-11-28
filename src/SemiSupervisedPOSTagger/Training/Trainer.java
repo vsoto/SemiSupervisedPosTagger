@@ -24,12 +24,11 @@ import java.util.zip.GZIPOutputStream;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 public class Trainer {
-    public static void train(final Options options, final int featSize, String tagDictionaryPath) throws Exception {
+
+
+    public static void train(final Options options, String tagDictionaryPath) throws Exception {
         IndexMaps maps = FileManager.createIndexMaps(options.trainPath, options.clusterFile, tagDictionaryPath, Sentence.brownSize);
         int unknownIndex = -1;
-        // if(maps.stringMap.containsKey("***"))
-        //   unknownIndex=maps.stringMap.get("***");
-
 
         // reading train and dev sentences to a vector
         ArrayList<Sentence> train_sentences = FileManager.readSentences(options.trainPath, maps);
@@ -37,18 +36,19 @@ public class Trainer {
         if (options.devPath != "")
             dev_sentences = FileManager.readSentences(options.devPath, maps);
 
-        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, featSize, maps.getTagDictionary());
-        double bestDevAcc = 0;
+        AveragedPerceptron classifier = new AveragedPerceptron(maps.tagSize, Sentence.NUM_FEATURES, maps.getTagDictionary());
+
+        double best_dev_acc = 0.0;
         for (int iter = 1; iter <= options.trainingIter; iter++) {
             System.out.print("\niter: " + iter + "\n");
             int corr = 0;
             int all = 0;
-            //iterating over all training sentences
+            // Iterating over all training sentences
             for (int s = 0; s < train_sentences.size(); s++) {
                 Sentence sen = train_sentences.get(s);
                 if ((s + 1) % 1000 == 0)
                     System.out.print((s + 1) + " ");
-                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, featSize, options.updateMode, unknownIndex, options.C);
+                corr += trainIter(sen, classifier, options.useBeamSearch, options.beamWidth, Sentence.NUM_FEATURES, options.updateMode, unknownIndex, options.C);
                 all += sen.words.length;
                 classifier.incrementIteration();
             }
@@ -62,8 +62,8 @@ public class Trainer {
                 saveModel(maps, info, options.modelPath + ".tmp");
                 double acc = devIter(dev_sentences, options.modelPath + ".tmp");
 
-                if (acc > bestDevAcc) {
-                    bestDevAcc = acc;
+                if (acc > best_dev_acc) {
+                    best_dev_acc = acc;
                     System.out.print("Saving the new best model based on dev data...");
                     saveModel(maps, info, options.modelPath);
                 }

@@ -74,13 +74,12 @@ public class FileManager {
                     String lang_id = tokens[2];
                     String pos_tag = tokens[3];
 
-                    for (int p = 0; p < Math.min(4, word.length()); p++) {
+                    for (int p = 0; p < Math.min(Sentence.MAX_AFFIX_LENGTH, word.length()); p++) {
                         String prefix = word.substring(0, p + 1);
                         String suffix = word.substring(word.length() - p - 1);
                         words.add(prefix);
                         words.add(suffix);
                     }
-
                     tags.add(pos_tag);
                     words.add(word);
                     lang_ids.add(lang_id);
