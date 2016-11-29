@@ -117,7 +117,7 @@ public class Tagger {
                 corr += (tags[i] == maps.reversedMap[sentence.pos_tags[i]]) ? 1 : 0;
                 total++;
             }
-            writer.write(output.toString().trim() + "\n");
+            writer.write(output.toString() + "\n");
 
             if (putScore) {
                 float normalizedScore = ts.second / tags.length;
