@@ -35,13 +35,16 @@ public class FileManager {
         ArrayList<String> pos_tags = new ArrayList<String>();
         ArrayList<String> lang_tags = new ArrayList<String>();
 
+        String id = "";
         while ((line = reader.readLine()) != null) {
-            if (!line.startsWith("#")) {
-                if (line.trim().length() == 0) {
-                    sentences.add(new Sentence(words, pos_tags, lang_tags, maps));
-                    words.clear();
-                    pos_tags.clear();
-                    lang_tags.clear();
+            if (line.trim().length() == 0) {
+                sentences.add(new Sentence(id, words, pos_tags, lang_tags, maps));
+                words.clear();
+                pos_tags.clear();
+                lang_tags.clear();
+            } else {
+                if (line.startsWith("#")) {
+                    id = line;
                 } else {
                     String[] tokens = line.trim().split("\t");
                     words.add(tokens[1]);
@@ -49,7 +52,9 @@ public class FileManager {
                     pos_tags.add(tokens[3]);
                 }
             }
+
         }
+
         System.out.print("Done!\n");
         return sentences;
     }
@@ -92,11 +97,11 @@ public class FileManager {
         }
 
         for (String tag : pos_tags) {
-            assert(UNIVERSAL_POS_TAGSET.contains(tag));
+            assert (UNIVERSAL_POS_TAGSET.contains(tag));
         }
 
         for (String lang_id : lang_ids) {
-            assert(LANGID_TAGSET.contains(lang_id));
+            assert (LANGID_TAGSET.contains(lang_id));
         }
 
 

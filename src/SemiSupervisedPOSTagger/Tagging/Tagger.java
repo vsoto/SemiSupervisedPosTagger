@@ -112,6 +112,7 @@ public class Tagger {
                 tags[i] = maps.reversedMap[t[i]];
 
             StringBuilder output = new StringBuilder();
+            output.append(sentence.id + "\n");
             for (int i = 0; i < tags.length; i++) {
                 output.append(i + "\t" + sentence.string_words[i] + "\t" + maps.reversedMap[sentence.lang_ids[i]] + "\t" + tags[i] + "\n");
                 corr += (tags[i] == maps.reversedMap[sentence.pos_tags[i]]) ? 1 : 0;

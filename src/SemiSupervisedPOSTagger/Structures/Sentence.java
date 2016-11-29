@@ -11,6 +11,7 @@ import java.util.ArrayList;
  */
 
 public class Sentence {
+    public String id;
     public int[] words;
     public int[] lowercase_words;
     public String[] string_words;
@@ -31,7 +32,8 @@ public class Sentence {
     private final static int BIT_SHIFT = 5;
 
 
-    public Sentence(final ArrayList<String> words, final ArrayList<String> pos_tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
+    public Sentence(final String id, final ArrayList<String> words, final ArrayList<String> pos_tags, final ArrayList<String> lang_ids, final IndexMaps maps) {
+        this.id = id;
         this.words = new int[words.size()];
         this.lowercase_words = new int[words.size()];
         this.string_words = new String[words.size()];
